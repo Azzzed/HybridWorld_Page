@@ -1,0 +1,111 @@
+.contact__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.88fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+
+/* ---------- FAQ ---------- */
+.faq {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  position: sticky;
+  top: 90px;
+}
+
+.faq__title {
+  font-size: clamp(1.9rem, 3.6vw, 2.8rem);
+}
+
+.faq__list {
+  width: 100%;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.faq__item {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 0;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  transition: color 0.25s var(--ease-out);
+}
+
+.faq__q:hover {
+  color: var(--text);
+}
+
+.faq__item.is-open .faq__q {
+  color: var(--neon);
+}
+
+.faq__chev {
+  display: inline-flex;
+  color: var(--text-faint);
+  flex: none;
+}
+
+.faq__item.is-open .faq__chev {
+  color: var(--neon);
+}
+
+.faq__a {
+  overflow: hidden;
+}
+
+.faq__a p {
+  padding: 0 0 20px;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 54ch;
+}
+
+@media (max-width: 940px) {
+  .contact__layout {
+    grid-template-columns: 1fr;
+  }
+  .faq {
+    position: static;
+  }
+}
+
+
+/* ---------- Galería en movimiento ---------- */
+.gallery {
+  min-width: 0;
+}
+
+.gallery__spiral {
+  height: clamp(460px, 62svh, 620px);
+  /* La hélice se sale de su columna si el contenedor es más ancho que el
+     diámetro: se centra y se recorta con un desvanecido arriba y abajo. */
+  max-width: 560px;
+  margin-inline: auto;
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+}
+
+.gallery__spiral .infinite-spiral__item {
+  border-color: var(--line-2);
+  background: var(--bg-2);
+  box-shadow: none;
+}
+
+@media (max-width: 940px) {
+  .gallery__spiral {
+    height: clamp(380px, 50svh, 480px);
+  }
+}

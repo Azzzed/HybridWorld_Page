@@ -1,0 +1,43 @@
+{
+  "vehicle": "veh_fk381t13pphvj",
+  "model": "Toyota Prius 2026",
+  "color": "silver",
+  "views": [
+    {
+      "view": "front",
+      "yaw": 0,
+      "file": "front.png",
+      "width": 1024
+    },
+    {
+      "view": "front-3-4",
+      "yaw": 35,
+      "file": "front-3-4.png",
+      "width": 1024
+    },
+    {
+      "view": "side",
+      "yaw": 90,
+      "file": "side.png",
+      "width": 1024
+    },
+    {
+      "view": "rear-3-4",
+      "yaw": 145,
+      "file": "rear-3-4.png",
+      "width": 1024
+    },
+    {
+      "view": "rear",
+      "yaw": 180,
+      "file": "rear.png",
+      "width": 1024
+    },
+    {
+      "view": "side-right",
+      "yaw": 270,
+      "file": "side-right.png",
+      "width": 1024
+    }
+  ]
+}

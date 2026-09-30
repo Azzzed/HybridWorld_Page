@@ -1,0 +1,10 @@
+/* ---- SplitText ---- */
+.st-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.st-char {
+  display: inline-block;
+  will-change: transform, opacity;
+}

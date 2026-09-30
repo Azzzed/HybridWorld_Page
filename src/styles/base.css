@@ -1,0 +1,218 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  /* clip y no hidden: hidden convierte al body en contenedor de scroll y
+     rompe el position:sticky del hero */
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-wide);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+h1 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: var(--neon);
+  color: #000;
+}
+
+:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 3px;
+}
+
+/* ---------- Layout ---------- */
+.shell {
+  width: min(100% - (var(--pad) * 2), var(--shell));
+  margin-inline: auto;
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(64px, 9vw, 120px);
+  scroll-margin-top: 80px;
+}
+
+/* ---------- Encabezados ---------- */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--neon);
+}
+
+.section-title {
+  font-size: clamp(2rem, 4.4vw, 3.2rem);
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+.section-lede {
+  color: var(--text-dim);
+  font-size: 1rem;
+  max-width: 54ch;
+}
+
+/* ---------- Borde neón animado ----------
+   Se pinta en un ::after que nunca captura el puntero, así no
+   interfiere con el hover del contenido. */
+.neon {
+  position: relative;
+}
+
+.neon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--neon-angle),
+    transparent 0deg,
+    var(--neon) 30deg,
+    var(--neon-2) 70deg,
+    transparent 110deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: neonSpin 5s linear infinite;
+}
+
+.neon--slow::after {
+  animation-duration: 9s;
+}
+
+/* Solo se enciende al pasar el cursor */
+.neon--hover::after {
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.neon--hover:hover::after,
+.neon--hover:focus-within::after {
+  opacity: 1;
+}
+
+@keyframes neonSpin {
+  to {
+    --neon-angle: 360deg;
+  }
+}
+
+/* ---------- Superficie base de tarjeta ---------- */
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+
+/* ---------- Utilidades ---------- */
+.rule {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--line);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translate(-50%, -160%);
+  z-index: 100;
+  padding: 10px 18px;
+  border: 1px solid var(--neon);
+  color: var(--neon);
+  background: #000;
+  transition: transform 0.25s var(--ease-out);
+}
+
+.skip:focus {
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  /* Sin movimiento el borde queda fijo pero visible */
+  .neon--hover::after {
+    opacity: 1;
+  }
+}

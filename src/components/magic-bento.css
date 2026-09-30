@@ -1,0 +1,492 @@
+/* ==========================================================================
+   MagicBento del sitio: la rejilla de servicios.
+   Tarjetas con foto, esquinas rectas y el verde del logo. Los efectos (foco,
+   borde que se enciende, partículas, imán, onda y el borde especular del
+   hover) los mueve MagicBento.tsx; aquí ninguna regla toca el transform de
+   la tarjeta.
+
+   Capas de cada tarjeta, de atrás hacia delante:
+     .bento-card__clip     la foto y el negro que la tapa en el hover   (z 0)
+     ::after               el borde que se enciende con el cursor cerca  (z 1)
+     head / body           el texto                                     (z 2)
+     .bento-card__sparks   partículas y ondas                           (z 3)
+     .bento-card__fx       el borde especular, que sobresale 20 px      (z 4)
+   ========================================================================== */
+
+/* Escritorio: 12 columnas. Arriba la especialidad (8) y el aire (4); abajo
+   las cuatro pequeñas (3 cada una) */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(10px, 0.9vw, 16px);
+}
+
+.bento-card {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 300px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+  min-width: 0;
+  min-height: clamp(230px, 17vw, 260px);
+  padding: clamp(22px, 2.2vw, 36px);
+  /* Visible: el borde especular se derrama fuera. Lo que no debe salirse
+     (foto, partículas) va en capas que recortan solas. */
+  overflow: visible;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--r);
+  background: #050706;
+  transition:
+    border-color 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out);
+}
+
+.bento-card--lg {
+  grid-column: span 8;
+  min-height: clamp(260px, 20vw, 300px);
+  /* La especialidad lleva el borde encendido de serie */
+  border-color: rgba(18, 224, 107, 0.45);
+}
+
+.bento-card--md {
+  grid-column: span 4;
+  min-height: clamp(260px, 20vw, 300px);
+}
+
+.bento-card--sm {
+  grid-column: span 3;
+}
+
+/* ---------- Borde que se enciende según la cercanía del cursor ---------- */
+.bento-grid--glow .bento-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 6px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.8)) 0%,
+    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.4)) 30%,
+    transparent 60%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  transition: opacity 0.35s var(--ease-out);
+}
+
+/* ---------- Foto y relleno negro ---------- */
+.bento-card__clip {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bento-card__media {
+  position: absolute;
+  inset: 0;
+}
+
+.bento-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.9) saturate(1.05);
+  transform: scale(1.02);
+  transition:
+    transform 1s var(--ease-out),
+    filter 0.6s var(--ease-out);
+}
+
+/* Velo: oscuro donde va el texto y abierto donde está lo que muestra la foto */
+.bento-card__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(3, 6, 5, 0.94) 0%, rgba(3, 6, 5, 0.78) 36%, rgba(3, 6, 5, 0.34) 68%, rgba(3, 6, 5, 0.16) 100%),
+    linear-gradient(0deg, rgba(3, 6, 5, 0.55) 0%, transparent 48%);
+}
+
+.bento-card--lg .bento-card__media::after {
+  background: linear-gradient(90deg, rgba(3, 6, 5, 0.96) 0%, rgba(3, 6, 5, 0.86) 30%, rgba(3, 6, 5, 0.3) 56%, rgba(3, 6, 5, 0.05) 100%);
+}
+
+/* El negro del hover: un círculo que nace donde entra el cursor */
+.bento-card__fill {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  clip-path: circle(0% at var(--fill-x, 50%) var(--fill-y, 100%));
+}
+
+/* ---------- Cabecera: icono y etiqueta ---------- */
+.bento-card__head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bento-card__icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--neon);
+  filter: drop-shadow(0 0 6px rgba(18, 224, 107, 0.5));
+}
+
+.bento-card__icon--accent {
+  width: 26px;
+  height: 26px;
+  background: var(--neon);
+  color: #03130a;
+  filter: none;
+  box-shadow: 0 0 14px rgba(18, 224, 107, 0.45);
+}
+
+.bento-card__label {
+  padding: 5px 10px 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.55);
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-wide);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #e9eeec;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* ---------- Cuerpo ---------- */
+.bento-card__body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.bento-card__more-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.bento-card__title {
+  font-variation-settings: var(--display-wide);
+  font-weight: 800;
+  font-size: clamp(1.3rem, 1.6vw, 1.7rem);
+  letter-spacing: -0.035em;
+  color: #fff;
+}
+
+.bento-card--lg .bento-card__title {
+  font-size: clamp(1.8rem, 2.8vw, 2.7rem);
+}
+
+.bento-card--md .bento-card__title {
+  font-size: clamp(1.5rem, 2.1vw, 2.1rem);
+}
+
+.bento-card__desc {
+  max-width: 40ch;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: rgba(232, 237, 235, 0.8);
+}
+
+.bento-card--lg .bento-card__desc {
+  max-width: 42ch;
+  font-size: 1.05rem;
+}
+
+.bento-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-block: 2px;
+  padding: 6px 12px;
+  background: var(--neon);
+  color: #03130a;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-wide);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 0 18px rgba(18, 224, 107, 0.35);
+}
+
+.bento-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--neon);
+}
+
+.bento-card__link svg {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.bento-card__link:hover svg,
+.bento-card__link:focus-visible svg {
+  transform: translateX(4px);
+}
+
+.bento-card__link:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 4px;
+}
+
+/* ---------- Partículas, onda, borde especular y foco ---------- */
+.bento-card__sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bento-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bento-ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* El lienzo que pone specular-frame.ts; se lleva su propio tamaño */
+.bento-card__fx {
+  position: absolute;
+  inset: -20px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.bento-card__specular {
+  display: block;
+}
+
+/* Por encima de las tarjetas y por debajo de la barra de navegación */
+.bento-spotlight {
+  position: fixed;
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   Con ratón: la tarjeta enseña la foto y el título. Al pasar el cursor, el
+   negro la tapa desde donde entra, el borde pasa a ser el especular de los
+   botones y aparecen la descripción y el enlace. Con el teclado pasa lo
+   mismo al enfocar el enlace.
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  /* Sin texto largo encima, la foto puede verse más */
+  .bento-card__media::after,
+  .bento-card--lg .bento-card__media::after {
+    background:
+      linear-gradient(0deg, rgba(3, 6, 5, 0.9) 0%, rgba(3, 6, 5, 0.5) 32%, transparent 62%),
+      linear-gradient(90deg, rgba(3, 6, 5, 0.55) 0%, transparent 55%);
+  }
+
+  .bento-card__more {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      grid-template-rows 0.5s var(--ease-out),
+      opacity 0.3s var(--ease-out),
+      transform 0.5s var(--ease-out);
+  }
+
+  .bento-card__more-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .bento-card__fill {
+    transition: clip-path 0.6s var(--ease-out);
+  }
+
+  .bento-card:hover,
+  .bento-card:has(:focus-visible) {
+    border-color: var(--neon);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.4),
+      0 0 30px rgba(18, 224, 107, 0.16);
+  }
+
+  /* Con el borde especular activo, el borde lo dibuja él, como en los botones */
+  .bento-grid--specular .bento-card:hover {
+    border-color: transparent;
+  }
+
+  /* El brillo por cercanía se aparta en la tarjeta del hover: el borde es el especular */
+  .bento-card:hover::after,
+  .bento-card:has(:focus-visible)::after {
+    opacity: 0;
+  }
+
+  .bento-card:hover .bento-card__fill,
+  .bento-card:has(:focus-visible) .bento-card__fill {
+    clip-path: circle(150% at var(--fill-x, 50%) var(--fill-y, 100%));
+  }
+
+  .bento-card:hover .bento-card__media img {
+    filter: brightness(1) saturate(1.12);
+    transform: scale(1.06);
+  }
+
+  .bento-card:hover .bento-card__more,
+  .bento-card:has(:focus-visible) .bento-card__more {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s, 0.1s, 0s;
+  }
+}
+
+/* ==========================================================================
+   Tableta: dos columnas. Las dos grandes a todo el ancho, las cuatro
+   pequeñas de dos en dos.
+   ========================================================================== */
+@media (max-width: 980px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bento-card--lg,
+  .bento-card--md {
+    grid-column: span 2;
+  }
+
+  .bento-card--sm {
+    grid-column: span 1;
+  }
+}
+
+/* ==========================================================================
+   Móvil: una columna. La foto queda a la vista arriba y el texto abajo, sobre
+   un velo que oscurece de arriba abajo. Sin hover, todo está siempre visible.
+   ========================================================================== */
+@media (max-width: 620px) {
+  .bento-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .bento-card--lg,
+  .bento-card--md,
+  .bento-card--sm {
+    grid-column: auto;
+  }
+
+  .bento-card {
+    min-height: 250px;
+    padding: 20px;
+    gap: 18px;
+  }
+
+  .bento-card--lg {
+    min-height: 360px;
+  }
+
+  .bento-card__media::after,
+  .bento-card--lg .bento-card__media::after {
+    background: linear-gradient(
+      180deg,
+      rgba(3, 6, 5, 0.5) 0%,
+      rgba(3, 6, 5, 0.12) 26%,
+      rgba(3, 6, 5, 0.72) 54%,
+      rgba(3, 6, 5, 0.96) 100%
+    );
+  }
+
+  .bento-card__title,
+  .bento-card--md .bento-card__title {
+    font-size: 1.6rem;
+  }
+
+  .bento-card--lg .bento-card__title {
+    font-size: 2rem;
+  }
+
+  .bento-card__desc,
+  .bento-card--lg .bento-card__desc {
+    font-size: 0.98rem;
+  }
+
+  /* Enlace más alto: se toca con el dedo */
+  .bento-card__link {
+    padding-block: 6px;
+  }
+}
+
+/* Con "reducir movimiento" (en Windows, los efectos de animación apagados)
+   el hover sigue igual: el negro, el borde y la información solo responden
+   al cursor y no desplazan nada de sitio. base.css deja en esa preferencia
+   todas las transiciones en 0 (con !important); aquí se devuelven las del
+   hover. Lo único que se quita es el zoom de la foto. */
+@media (prefers-reduced-motion: reduce) {
+  .bento-card {
+    transition-duration: 0.35s, 0.35s !important;
+  }
+
+  .bento-grid--glow .bento-card::after {
+    transition-duration: 0.35s !important;
+  }
+
+  .bento-card__fill {
+    transition-duration: 0.6s !important;
+  }
+
+  .bento-card__more {
+    transition-duration: 0.5s, 0.3s, 0.5s !important;
+  }
+
+  .bento-card__media img,
+  .bento-card:hover .bento-card__media img {
+    transform: scale(1.02);
+    transition-property: filter;
+    transition-duration: 0.6s !important;
+  }
+}

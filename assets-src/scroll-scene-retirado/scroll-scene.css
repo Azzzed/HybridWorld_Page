@@ -1,0 +1,76 @@
+/* Contenedor alto: cada pantalla de scroll avanza la secuencia. */
+.scene {
+  position: relative;
+  height: calc(var(--scene-screens, 3) * 100svh);
+}
+
+.scene__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.scene__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* ---------- HUD de calibración ---------- */
+.scene__hud {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.72);
+  font-family: var(--font-display);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.scene__hud strong {
+  color: var(--neon);
+  font-weight: 600;
+}
+
+.scene__hud-bar {
+  position: relative;
+  width: 140px;
+  height: 1px;
+  background: var(--line-2);
+}
+
+.scene__hud-bar i {
+  position: absolute;
+  inset: 0;
+  background: var(--neon);
+  transform-origin: 0 50%;
+}
+
+@media (max-width: 720px) {
+  .scene__hud {
+    /* Se sube para que el botón flotante no lo tape mientras se calibra */
+    bottom: 88px;
+    gap: 10px;
+    font-size: 0.58rem;
+  }
+  .scene__hud-bar {
+    width: 70px;
+  }
+}

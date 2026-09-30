@@ -1,0 +1,49 @@
+/* Ángulo animado para los bordes neón. Sin @property el borde se
+   queda estático en lugar de girar: degrada bien. */
+@property --neon-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  /* --- Superficies: negro mate, sin gradientes --- */
+  --bg: #000000;
+  --bg-1: #050505;
+  --bg-2: #0a0a0a;
+  --panel: #070707;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-2: rgba(255, 255, 255, 0.2);
+
+  /* --- Texto --- */
+  --text: #f2f4f5;
+  --text-dim: #8b9096;
+  --text-faint: #565a5f;
+
+  /* --- Neón (muestreado del logo) --- */
+  --neon: #12e06b;
+  --neon-2: #16a9f0;
+  --neon-dim: rgba(18, 224, 107, 0.4);
+
+  /* --- Tipografía ---
+     Titulares: Archivo en su eje ancho. Grotesca industrial, de rótulo de
+     taller: tiene peso y no es ninguna de las geométricas que se repiten en
+     todas las plantillas (Inter, Geist, Space Grotesk…).
+     Texto: Athiti, de la pareja que dio fontjoy.com. */
+  --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Athiti", "Segoe UI", system-ui, sans-serif;
+  --display-wide: "wdth" 112;
+  /* Titular del hero: el mismo Archivo en su extremo ancho, para el peso 900 */
+  --display-heavy: "wdth" 125;
+  /* Titular del cierre: el mismo Archivo casi en su extremo estrecho, vertical */
+  --display-condensed: "wdth" 66;
+
+  /* --- Métricas --- */
+  --shell: 1280px;
+  --pad: clamp(16px, 4vw, 40px);
+  /* Esquinas rectas en todo el sitio */
+  --r: 0px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}

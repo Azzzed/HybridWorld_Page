@@ -1,0 +1,128 @@
+/* ---------- Tira genérica ---------- */
+.mq {
+  position: relative;
+  overflow: hidden;
+}
+
+.mq__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.mq__group {
+  display: flex;
+  /* stretch iguala la altura de las tarjetas dentro de la tira */
+  align-items: stretch;
+  flex: none;
+}
+
+.mq__fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(48px, 10vw, 160px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.mq__fade--l {
+  left: 0;
+  background: linear-gradient(90deg, var(--bg) 10%, transparent);
+}
+
+.mq__fade--r {
+  right: 0;
+  background: linear-gradient(270deg, var(--bg) 10%, transparent);
+}
+
+/* ---------- Marcas: solo logos, sin contenedor ---------- */
+.brands {
+  padding-block: clamp(36px, 5vw, 60px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brands {
+  --logo-h: clamp(30px, 3.6vw, 44px);
+}
+
+/* Cada marca ocupa el mismo ancho: así la tira avanza a ritmo parejo */
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: clamp(150px, 16vw, 230px);
+  opacity: 0.55;
+  transition: opacity 0.35s var(--ease-out), filter 0.35s var(--ease-out);
+}
+
+.brand-logo img {
+  width: auto;
+  max-width: 78%;
+  object-fit: contain;
+}
+
+.brand-logo:hover {
+  opacity: 1;
+  filter: drop-shadow(0 0 12px rgba(18, 224, 107, 0.45));
+}
+
+/* ---------- Autos ---------- */
+.cars {
+  padding-block: clamp(48px, 7vw, 86px);
+  border-bottom: 1px solid var(--line);
+}
+
+.cars__head {
+  margin-bottom: clamp(24px, 3vw, 38px);
+}
+
+.car-card {
+  position: relative;
+  flex: none;
+  width: clamp(240px, 26vw, 360px);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--bg-2);
+  transition: border-color 0.35s var(--ease-out);
+}
+
+.car-card:hover {
+  border-color: var(--neon-dim);
+}
+
+.car-card img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  filter: grayscale(0.7) contrast(1.06);
+  transition: filter 0.45s var(--ease-out);
+}
+
+.car-card:hover img {
+  filter: grayscale(0) contrast(1.06);
+}
+
+.car-card figcaption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.car-card__model {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.car-card__brand {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}

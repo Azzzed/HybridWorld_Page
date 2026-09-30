@@ -1,0 +1,144 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(56px, 8vw, 100px);
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Fondo GradientWaves de ReactBits */
+.hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.95;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+}
+
+/* Solo lo justo para que el titular tenga contraste; el resto se deja ver */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 32%, rgba(0, 0, 0, 0.08) 62%, transparent 100%);
+}
+
+.hero__in {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+}
+
+.hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.hero__title {
+  font-size: clamp(2.4rem, 5vw, 4.1rem);
+  max-width: 14ch;
+  text-wrap: balance;
+  text-transform: uppercase;
+}
+
+.hero__lede {
+  color: var(--text-dim);
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
+  max-width: 40ch;
+}
+
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- Logo en cromo ---------- */
+.hero__chrome {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1;
+  max-width: clamp(320px, 42vw, 560px);
+  margin-inline: auto;
+}
+
+/* Halo oscuro detrás: sin él el cromo se pierde sobre la cresta verde */
+.hero__chrome::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.82) 30%, rgba(0, 0, 0, 0.45) 58%, transparent 76%);
+}
+
+.hero__chrome .paint-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Indicador de scroll ---------- */
+.hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 1px;
+  height: 46px;
+  background: var(--line-2);
+  overflow: hidden;
+}
+
+.hero__scroll span {
+  position: absolute;
+  inset: 0;
+  background: var(--neon);
+  animation: heroScroll 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes heroScroll {
+  0% { transform: translateY(-100%); }
+  55%, 100% { transform: translateY(100%); }
+}
+
+@media (max-width: 1000px) {
+  .hero {
+    min-height: auto;
+    padding-block: clamp(40px, 7vw, 72px) clamp(56px, 8vw, 90px);
+  }
+  .hero__in {
+    grid-template-columns: 1fr;
+  }
+  .hero__chrome {
+    order: -1;
+    max-width: min(78vw, 360px);
+  }
+  .hero::before {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.8) 55%, rgba(0, 0, 0, 0.94) 100%);
+  }
+  .hero__title {
+    max-width: 18ch;
+  }
+  .hero__scroll {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero__cta .specular-button,
+  .hero__cta .cta-ghost {
+    flex: 1 1 auto;
+  }
+}

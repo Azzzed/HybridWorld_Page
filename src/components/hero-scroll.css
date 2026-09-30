@@ -1,0 +1,827 @@
+/* ==========================================================================
+   Hero de dos paneles con un video gobernado por el scroll.
+   El video (src/components/hero-video) pinta la cámara que gira alrededor del
+   auto; esto es la puesta en escena: la sección alta que da recorrido, las
+   capas y el texto.
+
+   Capas, de atrás hacia delante:
+     .hero-scroll__media     el video, en un canvas            (z 1)
+     .hero-scroll__overlay   panel oscuro diagonal y haz de neón (z 2)
+     .hero-scroll__panels    el texto                           (z 3)
+   ========================================================================== */
+
+.hero-scroll {
+  position: relative;
+  /* El alto de la sección es el recorrido del scroll: tres pantallas dan dos
+     de desplazamiento, que es lo que dura el giro de la cámara. */
+  height: 300svh;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+
+  /* Canal del texto: más ancho que .shell, para que el titular arranque cerca
+     del borde y deje sitio al auto. Con tope en 6vw: el video cubre la
+     pantalla, así que en una ultrapanorámica el auto llega igual de cerca de
+     los bordes y el texto no puede irse hacia el centro. */
+  --hero-gutter: max(var(--pad), min(calc((100% - 1600px) / 2), 6vw));
+}
+
+/* Se queda pegado mientras se recorre la sección y luego se va con la página */
+.hero-scroll__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+}
+
+/* ==========================================================================
+   1. Video
+   ========================================================================== */
+
+.hero-scroll__media {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.hero-scroll__frames {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   2. Capa superior: panel oscuro y haz de neón de la apertura
+   ========================================================================== */
+
+.hero-scroll__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.hero-scroll__shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Abajo se abre para dejar ver el verde que el neón echa sobre el suelo */
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0.5) 100%);
+  mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.hero-scroll__beams {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* El viewBox se estira con la pantalla: el trazo no, gracias a non-scaling-stroke */
+.hero-scroll__beams line {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.hero-scroll__beams--halo {
+  filter: blur(16px);
+  opacity: 0.55;
+}
+
+.hero-scroll__beams--halo line {
+  stroke: var(--neon);
+  stroke-width: 22px;
+}
+
+.hero-scroll__beams--core {
+  filter: drop-shadow(0 0 4px rgba(18, 224, 107, 0.95)) drop-shadow(0 0 14px rgba(18, 224, 107, 0.6));
+  animation: heroScrollHum 5.5s var(--ease-in-out) infinite;
+}
+
+.hero-scroll__beams--core line {
+  stroke-width: 2.5px;
+}
+
+/* Un zumbido de neón: casi imperceptible, pero la luz no está muerta */
+@keyframes heroScrollHum {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+.hero-scroll__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(42px);
+}
+
+/* Donde el haz toca el suelo */
+.hero-scroll__glow--base {
+  left: 27%;
+  bottom: -14%;
+  width: 26%;
+  height: 32%;
+  background: radial-gradient(closest-side, rgba(18, 224, 107, 0.5), transparent);
+}
+
+/* El trazo de la esquina inferior izquierda */
+.hero-scroll__glow--corner {
+  left: -8%;
+  bottom: -10%;
+  width: 42%;
+  height: 30%;
+  background: radial-gradient(closest-side, rgba(18, 224, 107, 0.38), transparent);
+}
+
+/* Un velo verde muy bajo detrás de WORLD */
+.hero-scroll__glow--title {
+  left: 3%;
+  top: 38%;
+  width: 44%;
+  height: 26%;
+  background: radial-gradient(closest-side, rgba(18, 224, 107, 0.16), transparent);
+}
+
+/* Las piezas de móvil (panel de arriba, haz que cruza y el brillo donde el
+   haz entra por la izquierda) solo se ven en la composición de móvil */
+.hero-scroll__shade-narrow,
+.hero-scroll__beams--narrow,
+.hero-scroll__glow--edge {
+  display: none;
+}
+
+.hero-scroll__shade-narrow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-scroll__glow--edge {
+  left: -14%;
+  top: 44%;
+  width: 44%;
+  height: 18%;
+  background: radial-gradient(closest-side, rgba(18, 224, 107, 0.42), transparent);
+}
+
+/* ==========================================================================
+   3. Paneles
+   ========================================================================== */
+
+.hero-scroll__panels {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.hero-scroll__panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(22px, 3.2svh, 34px);
+  padding-inline: var(--hero-gutter);
+}
+
+.hero-scroll__head,
+.hero-scroll__foot {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.6svh, 28px);
+}
+
+.hero-scroll__panel--intro {
+  align-items: flex-start;
+  will-change: opacity, transform;
+}
+
+/* Solo lo que se pulsa recibe el puntero: el resto deja pasar el scroll */
+.hero-scroll__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  pointer-events: auto;
+}
+
+/* ---------- Antetítulo con filete ---------- */
+
+.hero-scroll__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-wide);
+  font-size: clamp(0.72rem, 0.95vw, 0.98rem);
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--neon);
+  text-shadow: 0 0 14px rgba(18, 224, 107, 0.45);
+}
+
+.hero-scroll__eyebrow::after {
+  content: "";
+  flex: none;
+  width: clamp(56px, 14vw, 270px);
+  height: 1px;
+  background: linear-gradient(90deg, var(--neon), rgba(18, 224, 107, 0.12));
+  box-shadow: 0 0 8px rgba(18, 224, 107, 0.6);
+}
+
+/* ---------- Titular de la apertura ----------
+   El Archivo del sitio en cursiva, peso 900 y eje ancho al máximo. */
+
+.hero-scroll__title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: var(--display-heavy);
+  font-weight: 900;
+  font-size: clamp(3rem, 7.6vw, 8.8rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* padding-right: la cursiva se sale de su caja, y sin él el degradado que
+   rellena el texto cortaría la última letra. */
+.hero-scroll__word {
+  display: block;
+  padding-right: 0.14em;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Cromo: blanco arriba, un filo gris a media altura y un destello que barre */
+.hero-scroll__word--chrome {
+  background-image:
+    linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.95) 48%, transparent 56%),
+    linear-gradient(180deg, #ffffff 0%, #f5f7f9 38%, #c7cdd2 50%, #eef1f3 56%, #b5bcc2 84%, #e2e6e9 100%);
+  background-size: 260% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 160% 0, 0 0;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.4)) drop-shadow(0 0 24px rgba(255, 255, 255, 0.12));
+  animation: heroScrollSheen 7s var(--ease-in-out) infinite;
+}
+
+@keyframes heroScrollSheen {
+  0%,
+  58% {
+    background-position: 160% 0, 0 0;
+  }
+  100% {
+    background-position: -70% 0, 0 0;
+  }
+}
+
+.hero-scroll__word--neon {
+  background-image: linear-gradient(180deg, #86ffbf 0%, #33f08e 36%, var(--neon) 62%, #0cb657 100%);
+  filter: drop-shadow(0 0 10px rgba(18, 224, 107, 0.7)) drop-shadow(0 0 36px rgba(18, 224, 107, 0.42));
+}
+
+.hero-scroll__lede {
+  max-width: 36ch;
+  font-size: clamp(1rem, 1.25vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.55;
+  color: rgba(242, 244, 245, 0.92);
+  /* Sin una palabra sola en la última línea */
+  text-wrap: pretty;
+}
+
+/* ---------- Botón principal: verde sólido ----------
+   El secundario es el Cta del sitio (SpecularButton de ReactBits). Las
+   esquinas siguen rectas, como en todo el sitio. */
+
+.hero-scroll__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 30px;
+  border-radius: var(--r);
+  background: linear-gradient(180deg, #2df17f 0%, var(--neon) 55%, #0fcd62 100%);
+  color: #03130a;
+  font-family: var(--font-body);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow:
+    0 0 0 1px rgba(18, 224, 107, 0.7),
+    0 10px 34px rgba(18, 224, 107, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: box-shadow 0.3s var(--ease-out), filter 0.3s var(--ease-out);
+}
+
+.hero-scroll__btn:hover {
+  filter: brightness(1.07);
+  box-shadow:
+    0 0 0 1px rgba(18, 224, 107, 0.95),
+    0 12px 46px rgba(18, 224, 107, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.hero-scroll__btn svg:last-child {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.hero-scroll__btn:hover svg:last-child {
+  transform: translateX(3px);
+}
+
+.hero-scroll__btn:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 3px;
+}
+
+.specular-button.cta.hero-scroll__cta-ghost {
+  font-weight: 700;
+}
+
+/* ---------- Ventajas ---------- */
+
+.hero-scroll__features {
+  display: flex;
+  align-items: center;
+  margin: clamp(4px, 1.4svh, 18px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-scroll__features li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 clamp(18px, 2vw, 30px);
+  font-size: 0.98rem;
+  line-height: 1.3;
+  color: rgba(242, 244, 245, 0.86);
+}
+
+.hero-scroll__features li:first-child {
+  padding-left: 0;
+}
+
+.hero-scroll__features li + li {
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hero-scroll__features svg {
+  flex: none;
+  color: var(--neon);
+  filter: drop-shadow(0 0 6px rgba(18, 224, 107, 0.55));
+}
+
+/* ---------- Chevron de scroll ---------- */
+
+.hero-scroll__chevron {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  color: rgba(242, 244, 245, 0.75);
+  transform: translateX(-50%);
+  animation: heroScrollBob 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes heroScrollBob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 7px);
+  }
+}
+
+/* ==========================================================================
+   Cierre
+   El auto termina de tres cuartos trasera a la izquierda y el texto ocupa la
+   derecha: antetítulo y titular alineados al borde, y debajo el párrafo y los
+   botones en un bloque a la izquierda. Las ventajas bajan a la esquina
+   inferior izquierda, bajo el auto, y a la derecha queda el aviso de scroll.
+   ========================================================================== */
+
+.hero-scroll__panel--outro {
+  align-items: flex-end;
+  /* El bloque sube un poco: el titular queda por encima del capó */
+  padding-bottom: 7svh;
+  visibility: hidden;
+}
+
+/* Cada pieza entra con su propio retraso; hasta entonces, invisible */
+.hero-scroll__panel--outro [data-enter] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* Un velo a la derecha, detrás del texto, que ayuda a leer mientras el auto
+   todavía está cruzando */
+.hero-scroll__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.38) 30%, transparent 50%);
+}
+
+.hero-scroll__close {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: clamp(22px, 3.4svh, 38px);
+}
+
+.hero-scroll__close-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: clamp(16px, 2.6svh, 28px);
+  text-align: right;
+}
+
+/* 34vw: el morro del auto llega al 60 % del ancho en la pose final, y el
+   párrafo y los botones quedan a su altura: tienen que caber a su derecha */
+.hero-scroll__close-body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(22px, 3.6svh, 40px);
+  width: min(100%, 33rem, 34vw);
+  text-align: left;
+}
+
+.hero-scroll__eyebrow--end {
+  flex-direction: row-reverse;
+}
+
+.hero-scroll__eyebrow--end::after {
+  width: clamp(40px, 6.3vw, 120px);
+  background: linear-gradient(270deg, var(--neon), rgba(18, 224, 107, 0.12));
+}
+
+/* Titular del cierre: el Archivo vertical y casi en su ancho mínimo, grande
+   y pesado. Blanco cromado arriba, verde neón abajo. */
+.hero-scroll__subtitle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-condensed);
+  font-weight: 900;
+  font-size: clamp(2.4rem, min(4.6vw, 10svh), 7rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero-scroll__subtitle .hero-scroll__word {
+  padding-right: 0;
+}
+
+.hero-scroll__subtitle .hero-scroll__word--chrome {
+  background-image:
+    linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.9) 48%, transparent 56%),
+    linear-gradient(180deg, #ffffff 0%, #f4f6f8 46%, #dde2e6 72%, #f0f3f5 100%);
+}
+
+.hero-scroll__subtitle .hero-scroll__word--neon {
+  filter: drop-shadow(0 0 8px rgba(18, 224, 107, 0.5)) drop-shadow(0 0 26px rgba(18, 224, 107, 0.24));
+}
+
+.hero-scroll__close-body .hero-scroll__lede {
+  max-width: none;
+  font-size: clamp(1rem, 1.05vw, 1.25rem);
+}
+
+.hero-scroll__features--end {
+  position: absolute;
+  left: var(--hero-gutter);
+  bottom: clamp(28px, 9.5svh, 100px);
+  margin: 0;
+}
+
+.hero-scroll__features--end li {
+  gap: clamp(14px, 1.6vw, 28px);
+  padding: 0 clamp(20px, 3vw, 56px);
+}
+
+.hero-scroll__features--end svg {
+  width: 34px;
+  height: 34px;
+}
+
+/* Portátiles: botones algo más compactos, para que los dos sigan en una fila
+   en ese bloque más estrecho */
+@media (max-width: 1500px) {
+  .hero-scroll__close-body .hero-scroll__btn {
+    gap: 10px;
+    padding: 15px 22px;
+    font-size: 1rem;
+  }
+
+  .hero-scroll__close-body .specular-button.cta {
+    padding: 15px 26px;
+    font-size: 1rem;
+  }
+
+  .hero-scroll__close-body .hero-scroll__cta {
+    gap: 14px;
+  }
+}
+
+/* ---------- Aviso de scroll del cierre ---------- */
+
+/* Nunca debajo del botón flotante de llamada (QuickCall: 52 px a
+   clamp(14px, 3vw, 28px) del borde) */
+.hero-scroll__cue {
+  position: absolute;
+  right: max(var(--hero-gutter), calc(clamp(14px, 3vw, 28px) + 52px + 28px));
+  bottom: clamp(18px, 5.5svh, 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgba(242, 244, 245, 0.8);
+}
+
+.hero-scroll__cue svg {
+  width: 12px;
+  height: 64px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: heroScrollCue 2.4s var(--ease-in-out) infinite;
+}
+
+.hero-scroll__cue span {
+  /* El tracking deja un hueco tras la última letra: se compensa */
+  margin-right: -0.32em;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-wide);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+@keyframes heroScrollCue {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+/* ==========================================================================
+   Móviles y tabletas en vertical
+   Aquí va el video vertical, con el auto en la mitad de abajo y la pared
+   oscura arriba: el texto se reparte por encima y por debajo del auto, y la
+   composición diagonal se sustituye por velos verticales. Es el mismo corte
+   con el que se elige el video (VERTICAL_QUERY en hero-video/sequence.ts):
+   un móvil apaisado usa el video horizontal y, con él, esta composición de
+   escritorio.
+   ========================================================================== */
+
+@media (max-width: 860px) and (orientation: portrait), (max-aspect-ratio: 3/4) {
+  .hero-scroll__panel--intro,
+  .hero-scroll__panel--outro {
+    justify-content: space-between;
+    padding-top: clamp(56px, 10svh, 110px);
+    padding-bottom: clamp(28px, 6svh, 64px);
+  }
+
+  .hero-scroll__head,
+  .hero-scroll__foot {
+    gap: 16px;
+  }
+
+  /* El cierre va entero arriba, sobre la pared: al final del giro el auto
+     queda de trasera en la mitad de abajo, y ahí no puede ir texto. De paso
+     queda lejos del botón flotante de llamada. */
+  .hero-scroll__panel--outro {
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+
+  .hero-scroll__close {
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .hero-scroll__close-head {
+    align-items: flex-start;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .hero-scroll__close-body {
+    width: auto;
+    gap: 18px;
+  }
+
+  /* 9,4vw: la primera línea mide 9 em y tiene que caber entera en el móvil */
+  .hero-scroll__subtitle {
+    align-items: flex-start;
+    font-size: clamp(1.8rem, 9.4vw, 3.4rem);
+  }
+
+  .hero-scroll__features--end,
+  .hero-scroll__cue {
+    display: none;
+  }
+
+  /* Velo del cierre: oscuro arriba, detrás del texto, y abierto antes del auto */
+  .hero-scroll__scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.72) 40%,
+      rgba(0, 0, 0, 0.42) 50%,
+      transparent 59%
+    );
+  }
+
+  .hero-scroll__eyebrow--end {
+    flex-direction: row;
+  }
+
+  .hero-scroll__eyebrow--end::after {
+    background: linear-gradient(90deg, var(--neon), rgba(18, 224, 107, 0.12));
+  }
+
+  /* El titular llena casi todo el ancho: HYBRID mide 5,2 em */
+  .hero-scroll__title {
+    font-size: clamp(2.7rem, 17vw, 7.5rem);
+  }
+
+  .hero-scroll__lede {
+    max-width: none;
+    font-size: 1.1rem;
+  }
+
+  .hero-scroll__close-body .hero-scroll__lede {
+    font-size: 0.98rem;
+  }
+
+  .hero-scroll__btn {
+    padding: 15px 22px;
+    font-size: 1rem;
+  }
+
+  .hero-scroll__features li {
+    gap: 9px;
+    padding: 0 12px;
+    font-size: 0.78rem;
+  }
+
+  .hero-scroll__features svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .hero-scroll__chevron {
+    display: none;
+  }
+
+  /* La diagonal de escritorio se cambia por su versión de móvil: panel
+     oscuro arriba, detrás del texto, y el haz cruzando entre el texto y el
+     auto. Abajo, un velo para los botones; en medio, el auto queda limpio. */
+  .hero-scroll__shade,
+  .hero-scroll__beams,
+  .hero-scroll__glow--title {
+    display: none;
+  }
+
+  .hero-scroll__shade-narrow,
+  .hero-scroll__beams--narrow,
+  .hero-scroll__glow--edge {
+    display: block;
+  }
+
+  .hero-scroll__overlay {
+    background: linear-gradient(180deg, transparent 70%, rgba(0, 0, 0, 0.78) 92%);
+  }
+}
+
+@media (max-width: 560px) {
+  /* Antetítulo en una sola línea: menos tracking y sin el filete */
+  .hero-scroll__eyebrow {
+    letter-spacing: 0.2em;
+  }
+
+  .hero-scroll__eyebrow::after {
+    display: none;
+  }
+
+  /* Botones apilados a todo el ancho, para que no queden desparejos */
+  .hero-scroll__cta {
+    gap: 10px;
+  }
+
+  .hero-scroll__cta > * {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-scroll__features li {
+    padding: 0 8px;
+    font-size: 0.72rem;
+  }
+}
+
+/* Las tres ciudades del cierre tienen que caber en una línea también aquí */
+@media (max-width: 380px) {
+  .hero-scroll__eyebrow {
+    font-variation-settings: normal;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Móvil apaisado y ventanas apaisadas pequeñas: composición de escritorio con
+   poco sitio. Fuera las ventajas y los avisos de scroll, titular más bajo y
+   botones uno encima de otro, para que todo quepa al lado del auto sin
+   pisarlo. */
+@media (orientation: landscape) and (max-height: 520px), (orientation: landscape) and (max-width: 860px) {
+  .hero-scroll__features,
+  .hero-scroll__cue,
+  .hero-scroll__chevron {
+    display: none;
+  }
+
+  .hero-scroll__panel,
+  .hero-scroll__close {
+    gap: 14px;
+  }
+
+  .hero-scroll__head,
+  .hero-scroll__close-head,
+  .hero-scroll__close-body {
+    gap: 12px;
+  }
+
+  .hero-scroll__panel--outro {
+    padding-bottom: 0;
+  }
+
+  .hero-scroll__title {
+    font-size: clamp(2.2rem, 14svh, 4rem);
+  }
+
+  .hero-scroll__lede,
+  .hero-scroll__close-body .hero-scroll__lede {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .hero-scroll__cta,
+  .hero-scroll__close-body .hero-scroll__cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .hero-scroll__btn,
+  .hero-scroll__close-body .hero-scroll__btn {
+    padding: 12px 18px;
+    font-size: 0.95rem;
+  }
+
+  .specular-button.cta.hero-scroll__cta-ghost,
+  .hero-scroll__close-body .specular-button.cta {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll__word--chrome,
+  .hero-scroll__beams--core,
+  .hero-scroll__chevron,
+  .hero-scroll__cue svg {
+    animation: none;
+  }
+}

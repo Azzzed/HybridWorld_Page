@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/img/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#05070a" />
+    <title>Hybrid World Inc — Especialistas en reparación de autos híbridos</title>
+    <meta
+      name="description"
+      content="Taller especializado en autos híbridos: baterías Prius, Lexus, Camry, Ford y Tesla. Reconstrucción de baterías, diagnóstico y reparación general. Tres sucursales en California."
+    />
+    <meta property="og:title" content="Hybrid World Inc — Especialistas en autos híbridos" />
+    <meta property="og:description" content="Baterías híbridas reconstruidas, diagnóstico y reparación especializada. Norwalk · Fullerton · Mountain View." />
+    <meta property="og:image" content="/img/shop/taller-01.jpg" />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,500..900;1,85..125,800..900&family=Athiti:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Primer fotograma del video del hero: se pide ya, antes que el JS. El
+         vertical va donde lo elige el hero (VERTICAL_QUERY en
+         src/components/hero-video/sequence.ts) y el horizontal en el resto. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/hero/prius-1280/001.webp"
+      type="image/webp"
+      media="(min-width: 861px) and (min-aspect-ratio: 3/4), (orientation: landscape)"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="/hero/prius-vertical/001.webp"
+      type="image/webp"
+      media="(max-width: 860px) and (orientation: portrait), (max-aspect-ratio: 3/4)"
+      fetchpriority="high"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

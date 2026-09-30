@@ -1,0 +1,76 @@
+/* Ajustes del SpecularButton para que encaje con el sitio: recto y mate */
+.specular-button.cta {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  gap: 9px;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.specular-button.cta .specular-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.specular-button.cta:active {
+  transform: none;
+}
+
+.specular-button.cta:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 3px;
+}
+
+/* El canvas del brillo sobresale 20px: no debe empujar el layout */
+.specular-button.cta {
+  isolation: isolate;
+}
+
+/* ---------- Secundario: misma silueta, contorno estático ---------- */
+.cta-ghost {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease-out), color 0.3s var(--ease-out),
+    background 0.3s var(--ease-out);
+}
+
+.cta-ghost:hover {
+  border-color: var(--neon-dim);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cta-ghost:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 3px;
+}
+
+/* Mismos tamaños que el SpecularButton para que casen lado a lado */
+.cta-ghost--sm {
+  font-size: 0.85rem;
+  padding: 10px 22px;
+}
+
+.cta-ghost--md {
+  font-size: 1rem;
+  padding: 14px 30px;
+}
+
+.cta-ghost--lg {
+  font-size: 1.15rem;
+  padding: 18px 40px;
+}

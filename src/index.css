@@ -1,0 +1,15 @@
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./components/ui/ui.css";
+@import "./components/ui/cta.css";
+
+/* Aplicar a toda la página */
+html, body {
+  scrollbar-width: none; /* Oculta la barra en Firefox */
+}
+
+/* Aplicar a toda la página en Chrome, Safari, Edge y Opera */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+  display: none;
+}

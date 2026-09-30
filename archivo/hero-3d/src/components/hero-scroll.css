@@ -1,0 +1,553 @@
+/* ==========================================================================
+   Hero de dos paneles con el auto gobernado por el scroll.
+   El recorrido del auto vive en src/three (congelado); esto es la puesta en
+   escena: la sección alta que da recorrido, las capas y el texto.
+
+   Capas, de atrás hacia delante:
+     .hero3d__canvas    la sala de hormigón, sus luces y el auto (z 1)
+     .hero3d__overlay   panel oscuro diagonal y haces de neón    (z 2)
+     .hero3d__panels    el texto                                  (z 3)
+   ========================================================================== */
+
+.hero3d {
+  position: relative;
+  /* El alto de la sección es el recorrido del scroll: tres pantallas dan dos
+     de desplazamiento, que es lo que dura la coreografía. */
+  height: 300svh;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+
+  /* Canal del texto: más ancho que .shell, para que el titular arranque cerca
+     del borde como en la referencia y deje sitio al auto. */
+  --hero-gutter: max(var(--pad), calc((100% - 1600px) / 2));
+}
+
+/* Se queda pegado mientras se recorre la sección y luego se va con la página */
+.hero3d__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+}
+
+/* ==========================================================================
+   1. Lienzo 3D: la sala y el auto
+   ========================================================================== */
+
+.hero3d__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.hero3d__canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+/* ==========================================================================
+   2. Capa superior: panel oscuro y haces de neón
+   ========================================================================== */
+
+.hero3d__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.hero3d__shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Abajo se abre para dejar ver el verde que el neón echa sobre el suelo */
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0.5) 100%);
+  mask-image: linear-gradient(to bottom, #000 58%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.hero3d__beams {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* El viewBox se estira con la pantalla: el trazo no, gracias a non-scaling-stroke */
+.hero3d__beams line {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.hero3d__beams--halo {
+  filter: blur(16px);
+  opacity: 0.55;
+}
+
+.hero3d__beams--halo line {
+  stroke: var(--neon);
+  stroke-width: 22px;
+}
+
+.hero3d__beams--core {
+  filter: drop-shadow(0 0 4px rgba(18, 224, 107, 0.95)) drop-shadow(0 0 14px rgba(18, 224, 107, 0.6));
+  animation: hero3dHum 5.5s var(--ease-in-out) infinite;
+}
+
+.hero3d__beams--core line {
+  stroke-width: 2.5px;
+}
+
+/* Un zumbido de neón: casi imperceptible, pero la luz no está muerta */
+@keyframes hero3dHum {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+.hero3d__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(42px);
+}
+
+/* Donde el haz toca el suelo */
+.hero3d__glow--base {
+  left: 36%;
+  bottom: -14%;
+  width: 26%;
+  height: 32%;
+  background: radial-gradient(closest-side, rgba(18, 224, 107, 0.5), transparent);
+}
+
+/* El trazo de la esquina inferior izquierda */
+.hero3d__glow--corner {
+  left: -8%;
+  bottom: -10%;
+  width: 42%;
+  height: 30%;
+  background: radial-gradient(closest-side, rgba(18, 224, 107, 0.38), transparent);
+}
+
+/* Un velo verde muy bajo detrás de WORLD */
+.hero3d__glow--title {
+  left: 3%;
+  top: 38%;
+  width: 44%;
+  height: 26%;
+  background: radial-gradient(closest-side, rgba(18, 224, 107, 0.16), transparent);
+}
+
+/* ==========================================================================
+   3. Paneles
+   ========================================================================== */
+
+.hero3d__panels {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.hero3d__panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(22px, 3.2svh, 34px);
+  padding-inline: var(--hero-gutter);
+  will-change: opacity, transform;
+}
+
+.hero3d__head,
+.hero3d__foot {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 2.6svh, 28px);
+}
+
+.hero3d__panel--intro {
+  align-items: flex-start;
+}
+
+.hero3d__panel--outro {
+  align-items: flex-end;
+  text-align: right;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hero3d__panel--outro .hero3d__cta {
+  justify-content: flex-end;
+}
+
+/* Al final el auto queda a la izquierda y el fondo detrás del texto: un velo
+   a la derecha para que se lea */
+.hero3d__panel--outro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.6) 34%, transparent 58%);
+}
+
+/* Solo lo que se pulsa recibe el puntero: el resto deja pasar el scroll */
+.hero3d__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  pointer-events: auto;
+}
+
+/* ---------- Antetítulo con filete ---------- */
+
+.hero3d__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-wide);
+  font-size: clamp(0.72rem, 0.95vw, 0.98rem);
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--neon);
+  text-shadow: 0 0 14px rgba(18, 224, 107, 0.45);
+}
+
+.hero3d__eyebrow::after {
+  content: "";
+  flex: none;
+  width: clamp(56px, 14vw, 270px);
+  height: 1px;
+  background: linear-gradient(90deg, var(--neon), rgba(18, 224, 107, 0.12));
+  box-shadow: 0 0 8px rgba(18, 224, 107, 0.6);
+}
+
+.hero3d__eyebrow--end {
+  flex-direction: row-reverse;
+}
+
+.hero3d__eyebrow--end::after {
+  background: linear-gradient(270deg, var(--neon), rgba(18, 224, 107, 0.12));
+}
+
+/* ---------- Titular ----------
+   El Archivo del sitio en cursiva, peso 900 y eje ancho al máximo. */
+
+.hero3d__title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: var(--display-heavy);
+  font-weight: 900;
+  font-size: clamp(3rem, 7.6vw, 8.8rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* padding-right: la cursiva se sale de su caja, y sin él el degradado que
+   rellena el texto cortaría la última letra. */
+.hero3d__word {
+  display: block;
+  padding-right: 0.14em;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Cromo: blanco arriba, un filo gris a media altura y un destello que barre */
+.hero3d__word--chrome {
+  background-image:
+    linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.95) 48%, transparent 56%),
+    linear-gradient(180deg, #ffffff 0%, #f5f7f9 38%, #c7cdd2 50%, #eef1f3 56%, #b5bcc2 84%, #e2e6e9 100%);
+  background-size: 260% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 160% 0, 0 0;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.4)) drop-shadow(0 0 24px rgba(255, 255, 255, 0.12));
+  animation: hero3dSheen 7s var(--ease-in-out) infinite;
+}
+
+@keyframes hero3dSheen {
+  0%,
+  58% {
+    background-position: 160% 0, 0 0;
+  }
+  100% {
+    background-position: -70% 0, 0 0;
+  }
+}
+
+.hero3d__word--neon {
+  background-image: linear-gradient(180deg, #86ffbf 0%, #33f08e 36%, var(--neon) 62%, #0cb657 100%);
+  filter: drop-shadow(0 0 10px rgba(18, 224, 107, 0.7)) drop-shadow(0 0 36px rgba(18, 224, 107, 0.42));
+}
+
+.hero3d__subtitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: var(--display-heavy);
+  font-weight: 900;
+  font-size: clamp(1.9rem, 4.2vw, 3.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.hero3d__lede {
+  max-width: 36ch;
+  font-size: clamp(1rem, 1.25vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.55;
+  color: rgba(242, 244, 245, 0.92);
+}
+
+/* ---------- Botón principal: verde sólido ----------
+   El secundario es el Cta del sitio (SpecularButton de ReactBits). Las
+   esquinas siguen rectas, como en todo el sitio. */
+
+.hero3d__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 30px;
+  border-radius: var(--r);
+  background: linear-gradient(180deg, #2df17f 0%, var(--neon) 55%, #0fcd62 100%);
+  color: #03130a;
+  font-family: var(--font-body);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow:
+    0 0 0 1px rgba(18, 224, 107, 0.7),
+    0 10px 34px rgba(18, 224, 107, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: box-shadow 0.3s var(--ease-out), filter 0.3s var(--ease-out);
+}
+
+.hero3d__btn:hover {
+  filter: brightness(1.07);
+  box-shadow:
+    0 0 0 1px rgba(18, 224, 107, 0.95),
+    0 12px 46px rgba(18, 224, 107, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.hero3d__btn svg:last-child {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.hero3d__btn:hover svg:last-child {
+  transform: translateX(3px);
+}
+
+.hero3d__btn:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 3px;
+}
+
+.specular-button.cta.hero3d__cta-ghost {
+  font-weight: 700;
+}
+
+/* ---------- Ventajas ---------- */
+
+.hero3d__features {
+  display: flex;
+  align-items: center;
+  margin: clamp(4px, 1.4svh, 18px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero3d__features li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 clamp(18px, 2vw, 30px);
+  font-size: 0.98rem;
+  line-height: 1.3;
+  color: rgba(242, 244, 245, 0.86);
+}
+
+.hero3d__features li:first-child {
+  padding-left: 0;
+}
+
+.hero3d__features li + li {
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hero3d__features svg {
+  flex: none;
+  color: var(--neon);
+  filter: drop-shadow(0 0 6px rgba(18, 224, 107, 0.55));
+}
+
+/* ---------- Chevron de scroll ---------- */
+
+.hero3d__chevron {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  color: rgba(242, 244, 245, 0.75);
+  transform: translateX(-50%);
+  animation: hero3dBob 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes hero3dBob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 7px);
+  }
+}
+
+/* ==========================================================================
+   Pantallas estrechas
+   El auto queda en la franja central: el titular va arriba, los botones y
+   las ventajas abajo, y la composición diagonal se sustituye por un velo
+   vertical, que es lo que cabe en un móvil.
+   ========================================================================== */
+
+@media (max-width: 860px) {
+  .hero3d__panel--intro {
+    justify-content: space-between;
+    padding-top: clamp(56px, 10svh, 110px);
+    padding-bottom: clamp(28px, 6svh, 64px);
+  }
+
+  .hero3d__head,
+  .hero3d__foot {
+    gap: 16px;
+  }
+
+  .hero3d__panel--outro {
+    justify-content: flex-end;
+    align-items: flex-start;
+    text-align: left;
+    padding-bottom: clamp(40px, 8svh, 90px);
+  }
+
+  .hero3d__panel--outro .hero3d__cta {
+    justify-content: flex-start;
+  }
+
+  .hero3d__panel--outro::before {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.55) 34%, transparent 56%);
+  }
+
+  .hero3d__eyebrow--end {
+    flex-direction: row;
+  }
+
+  .hero3d__eyebrow--end::after {
+    background: linear-gradient(90deg, var(--neon), rgba(18, 224, 107, 0.12));
+  }
+
+  .hero3d__title {
+    font-size: clamp(2.7rem, 13vw, 4.6rem);
+  }
+
+  .hero3d__lede {
+    max-width: none;
+    font-size: 0.98rem;
+  }
+
+  .hero3d__btn {
+    padding: 15px 22px;
+    font-size: 1rem;
+  }
+
+  .hero3d__features li {
+    gap: 9px;
+    padding: 0 12px;
+    font-size: 0.78rem;
+  }
+
+  .hero3d__features svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .hero3d__chevron {
+    display: none;
+  }
+
+  /* Diagonal fuera: velo arriba y abajo, donde va el texto */
+  .hero3d__shade,
+  .hero3d__beams,
+  .hero3d__glow--title {
+    display: none;
+  }
+
+  .hero3d__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.55) 30%,
+      transparent 44%,
+      transparent 62%,
+      rgba(0, 0, 0, 0.7) 86%
+    );
+  }
+
+}
+
+@media (max-width: 560px) {
+  /* Antetítulo en una sola línea: menos tracking y sin el filete */
+  .hero3d__eyebrow {
+    letter-spacing: 0.2em;
+  }
+
+  .hero3d__eyebrow::after {
+    display: none;
+  }
+
+  /* Botones apilados a todo el ancho, para que no queden desparejos */
+  .hero3d__cta {
+    gap: 10px;
+  }
+
+  .hero3d__cta > * {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero3d__features li {
+    padding: 0 8px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero3d__word--chrome,
+  .hero3d__beams--core,
+  .hero3d__chevron {
+    animation: none;
+  }
+}
