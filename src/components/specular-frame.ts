@@ -1,5 +1,6 @@
 import { Color, Mesh, Program, Renderer, Triangle } from "ogl";
 import { SPECULAR_FRAG, SPECULAR_PAD, SPECULAR_VERT } from "./reactbits/specular-shader";
+import { layoutSize } from "./layout-size";
 
 /** Aspecto del borde. Para las tarjetas se usan los valores de los botones (Cta). */
 export type SpecularLook = {
@@ -74,10 +75,13 @@ export function createSpecularFrame(look: SpecularLook): SpecularFrame {
   let last = 0;
 
   // Tamaño fraccionario y centro explícito, como en el botón: así el trazo
-  // cae justo sobre el borde de la tarjeta
+  // cae justo sobre el borde de la tarjeta. Es el tamaño de layout y no el de
+  // getBoundingClientRect(): la sección de servicios lleva `scale: 0.95`, y
+  // el tamaño ya escalado, dibujado dentro de ella, se volvía a escalar y el
+  // borde quedaba corto por la derecha y por abajo.
   const resize = () => {
     if (!host) return;
-    const { width: w, height: h } = host.getBoundingClientRect();
+    const { w, h } = layoutSize(host);
     renderer.setSize(w + SPECULAR_PAD * 2, h + SPECULAR_PAD * 2);
     program.uniforms.uCenter.value = [(SPECULAR_PAD + w / 2) * dpr, (SPECULAR_PAD + h / 2) * dpr];
     program.uniforms.uHalfSize.value = [(w / 2) * dpr, (h / 2) * dpr];

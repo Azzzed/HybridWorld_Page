@@ -30,8 +30,8 @@
      taller: tiene peso y no es ninguna de las geométricas que se repiten en
      todas las plantillas (Inter, Geist, Space Grotesk…).
      Texto: Athiti, de la pareja que dio fontjoy.com. */
-  --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
-  --font-body: "Athiti", "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-archivo), "Arial Narrow", system-ui, sans-serif;
+  --font-body: var(--font-athiti), "Segoe UI", system-ui, sans-serif;
   --display-wide: "wdth" 112;
   /* Titular del hero: el mismo Archivo en su extremo ancho, para el peso 900 */
   --display-heavy: "wdth" 125;

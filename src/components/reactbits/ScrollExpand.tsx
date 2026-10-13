@@ -1,4 +1,7 @@
+'use client';
+
 import { useCallback, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import type { CSSProperties, ReactNode } from 'react';
 
 import './ScrollExpand.css';
@@ -25,6 +28,9 @@ type ConfigKey =
 
 export interface ScrollExpandProps {
   src?: string;
+  /** Tamaño intrínseco de la foto, para next/image */
+  width?: number;
+  height?: number;
   mediaType?: 'image' | 'video';
   poster?: string;
   alt?: string;
@@ -47,8 +53,10 @@ export interface ScrollExpandProps {
   [key: string]: unknown;
 }
 
-const ScrollExpand: React.FC<ScrollExpandProps> = ({
+const ScrollExpand = ({
   src = '',
+  width = 1600,
+  height = 900,
   mediaType = 'image',
   poster = '',
   alt = '',
@@ -238,7 +246,16 @@ const ScrollExpand: React.FC<ScrollExpandProps> = ({
         playsInline
       />
     ) : (
-      <img ref={mediaRef} className="scroll-expand__media" src={src} alt={alt} draggable={false} />
+      <Image
+        ref={mediaRef}
+        className="scroll-expand__media"
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes="100vw"
+        draggable={false}
+      />
     );
 
   return (

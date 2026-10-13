@@ -1,9 +1,31 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "ignorePatterns": ["archivo/**"],
+  "plugins": [
+    "react",
+    "typescript",
+    "oxc"
+  ],
+  "ignorePatterns": [
+    "archivo/**",
+    "assets-src/**",
+    ".next/**"
+  ],
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true,
+        "allowExportNames": [
+          "metadata",
+          "viewport",
+          "generateMetadata",
+          "generateStaticParams",
+          "revalidate",
+          "dynamic",
+          "dynamicParams"
+        ]
+      }
+    ]
   }
 }

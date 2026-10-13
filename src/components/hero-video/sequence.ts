@@ -59,6 +59,9 @@ export const SOURCES = {
  */
 export const VERTICAL_QUERY = '(max-width: 860px) and (orientation: portrait), (max-aspect-ratio: 3/4)'
 
+/** El complemento de VERTICAL_QUERY: pantallas que usan el video horizontal. */
+export const WIDE_QUERY = '(min-width: 861px) and (min-aspect-ratio: 3/4), (orientation: landscape)'
+
 export const frameUrl = (source: Source, index: number) =>
   `${source.dir}/${String(index + 1).padStart(3, '0')}.webp`
 

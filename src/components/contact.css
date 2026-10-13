@@ -41,14 +41,20 @@
   font-size: 0.98rem;
   font-weight: 500;
   color: var(--text-dim);
+  cursor: pointer;
+  list-style: none;
   transition: color 0.25s var(--ease-out);
+}
+
+.faq__q::-webkit-details-marker {
+  display: none;
 }
 
 .faq__q:hover {
   color: var(--text);
 }
 
-.faq__item.is-open .faq__q {
+.faq__item[open] .faq__q {
   color: var(--neon);
 }
 
@@ -56,14 +62,30 @@
   display: inline-flex;
   color: var(--text-faint);
   flex: none;
+  transition: transform 0.3s var(--ease-out), color 0.3s var(--ease-out);
 }
 
-.faq__item.is-open .faq__chev {
+.faq__item[open] .faq__chev {
   color: var(--neon);
+  transform: rotate(180deg);
 }
 
-.faq__a {
+/* Apertura animada donde el navegador sabe animar hasta height: auto;
+   en el resto se abre de golpe, igual de bien. */
+.faq__item {
+  interpolate-size: allow-keywords;
+}
+
+.faq__item::details-content {
+  block-size: 0;
   overflow: hidden;
+  transition:
+    block-size 0.36s var(--ease-out),
+    content-visibility 0.36s allow-discrete;
+}
+
+.faq__item[open]::details-content {
+  block-size: auto;
 }
 
 .faq__a p {
@@ -87,6 +109,11 @@
 /* ---------- Galería en movimiento ---------- */
 .gallery {
   min-width: 0;
+}
+
+/* Ancla de /gallery (redirección del sitio anterior): que el header no la tape */
+#gallery {
+  scroll-margin-top: 90px;
 }
 
 .gallery__spiral {

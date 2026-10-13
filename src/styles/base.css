@@ -61,6 +61,11 @@ img {
   display: block;
 }
 
+/* `hidden` gana siempre, aunque la clase del elemento le ponga display */
+[hidden] {
+  display: none !important;
+}
+
 ::selection {
   background: var(--neon);
   color: #000;

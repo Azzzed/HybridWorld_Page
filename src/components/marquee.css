@@ -8,6 +8,30 @@
   display: flex;
   width: max-content;
   will-change: transform;
+  animation: mqSlide var(--mq-duration, 45s) linear infinite;
+}
+
+.mq__track--reverse {
+  animation-direction: reverse;
+}
+
+.mq:hover .mq__track {
+  animation-play-state: paused;
+}
+
+@keyframes mqSlide {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Con "reducir movimiento" la tira sigue girando, a un tercio de velocidad
+   (decisión del cliente). Gana a la regla general de base.css. */
+@media (prefers-reduced-motion: reduce) {
+  .mq__track {
+    animation-duration: calc(var(--mq-duration, 45s) * 3) !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 .mq__group {
@@ -95,6 +119,9 @@
 
 .car-card img {
   width: 100%;
+  /* auto: si no, el atributo height de next/image (el alto original de la
+     foto) le gana al aspect-ratio y la tarjeta se estira */
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   filter: grayscale(0.7) contrast(1.06);

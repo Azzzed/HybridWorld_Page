@@ -61,6 +61,12 @@
   padding: 18px 40px;
 }
 
+/* Borde fijo mientras el lienzo WebGL no está listo (o si no hay WebGL):
+   el botón se ve completo desde el HTML del servidor. */
+.specular-button:not(.specular-button--ready) {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sb-line, #fff) 55%, transparent);
+}
+
 /* Canvas extends past the button so the rim glow can bleed outside the edge */
 .specular-button__fx {
   position: absolute;

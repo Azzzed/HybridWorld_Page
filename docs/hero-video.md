@@ -53,8 +53,15 @@ Tramos del scroll (en `HeroScroll.tsx`):
 | `public/hero/prius-1280/001…122.webp` | horizontal, 1280×720, calidad 0,78 (≈4,3 MB) |
 | `public/hero/prius-vertical/001…122.webp` | vertical, 720×1280, calidad 0,72 (≈3,6 MB) |
 
-El primer fotograma de cada uno se precarga desde `index.html`, con el mismo
-corte que usa el hero.
+El primer fotograma de cada uno va en el HTML del servidor como póster (un
+`<picture>` con prioridad alta y su `<link rel=preload>` por media query, en
+`src/views/HomeView.tsx`), con el mismo corte que usa el hero. El canvas lo
+tapa cuando pinta su primer fotograma.
+
+La secuencia no se descarga al entrar: empieza cuando la página terminó de
+cargar (con el navegador libre) o con el primer scroll. El video vertical
+(móvil) baja uno de cada dos fotogramas, y con el ahorro de datos activado o
+en conexiones 2G/3G no se baja: se queda el póster.
 
 ## Cambiar un video
 

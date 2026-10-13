@@ -201,7 +201,26 @@
   bottom: -1px;
   height: 1px;
   background: var(--neon);
+  transform: scaleX(0);
+  transition: transform 0.35s var(--ease-out);
 }
+
+.branch__tab.is-on .branch__underline {
+  transform: scaleX(1);
+}
+
+/* La ficha activa entra subiendo; las demás están en el HTML pero ocultas */
+.branch__card:not([hidden]) {
+  animation: branchIn 0.35s var(--ease-out);
+}
+
+@keyframes branchIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
 
 .branch__tab-in {
   position: relative;

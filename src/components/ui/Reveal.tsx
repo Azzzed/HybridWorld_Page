@@ -1,29 +1,26 @@
-import type { ReactNode } from "react";
-import { motion } from "motion/react";
+import type { CSSProperties, ReactNode } from "react";
 
-/** Revelado al hacer scroll (motion.dev). */
+/**
+ * Revelado al hacer scroll. Es solo una clase: RevealObserver (en el layout)
+ * le pone `is-in` cuando entra en pantalla, y el CSS hace la transición.
+ * El texto está en el HTML desde el principio; sin JavaScript se ve tal cual
+ * (ui.css solo lo esconde con `scripting: enabled`).
+ */
 export default function Reveal({
   children,
   delay = 0,
-  y = 26,
-  className,
-  once = true,
+  className = "",
+  as: Tag = "div",
 }: {
   children: ReactNode;
+  /** segundos */
   delay?: number;
-  y?: number;
   className?: string;
-  once?: boolean;
+  as?: "div" | "span" | "p";
 }) {
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, amount: 0.25 }}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
-    >
+    <Tag className={`reveal ${className}`.trim()} style={delay ? ({ "--reveal-delay": `${delay}s` } as CSSProperties) : undefined}>
       {children}
-    </motion.div>
+    </Tag>
   );
 }

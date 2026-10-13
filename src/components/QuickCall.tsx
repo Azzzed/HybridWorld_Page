@@ -1,72 +1,82 @@
-import { useState } from "react";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { MessageCircle, Phone, X } from "lucide-react";
-import { locations } from "../data/locations";
 import "./quickcall.css";
 
-/** Botón flotante: llamar o escribir por WhatsApp a la sucursal que elijas. */
-export default function QuickCall() {
+export type QuickCallProps = {
+  shops: { slug: string; city: string; phone: { display: string; tel: string } }[];
+  whatsapp: string;
+  labels: { open: string; close: string; title: string; whatsapp: string };
+};
+
+/**
+ * Botón flotante: llamar a la sucursal que elijas o escribir por WhatsApp.
+ * Aparece después del primer tramo de la página y se va al llegar al final
+ * (donde ya está el footer con los teléfonos).
+ */
+export default function QuickCall({ shops, whatsapp, labels }: QuickCallProps) {
   const [shown, setShown] = useState(false);
   const [open, setOpen] = useState(false);
-  const { scrollYProgress } = useScroll();
 
-  useMotionValueEvent(scrollYProgress, "change", (v) => setShown(v > 0.08 && v < 0.97));
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? window.scrollY / max : 0;
+      setShown(progress > 0.08 && progress < 0.97);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // Si el botón se esconde, el menú se cierra con él
+  const menuOpen = open && shown;
 
   return (
-    <AnimatePresence>
-      {shown && (
-        <motion.div
-          className="qc"
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 20 }}
-          transition={{ type: "spring", stiffness: 320, damping: 26 }}
-        >
-          <AnimatePresence>
-            {open && (
-              <motion.ul
-                className="qc__menu"
-                initial={{ opacity: 0, y: 12, scale: 0.94 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 12, scale: 0.94 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <li className="qc__head">Marca a tu sucursal</li>
-                {locations.map((l) => (
-                  <li key={l.id}>
-                    <a href={l.phoneHref}>
-                      <Phone size={15} />
-                      <span>
-                        <strong>{l.city}</strong>
-                        <em>{l.phone}</em>
-                      </span>
-                    </a>
-                    <a
-                      className="qc__wa"
-                      href={l.whatsapp}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      aria-label={`WhatsApp ${l.city}`}
-                    >
-                      <MessageCircle size={16} />
-                    </a>
-                  </li>
-                ))}
-              </motion.ul>
-            )}
-          </AnimatePresence>
+    <div className="qc" data-shown={shown} inert={!shown}>
+      <ul className="qc__menu" data-open={menuOpen} inert={!menuOpen} id="quick-call-menu">
+        <li className="qc__head">{labels.title}</li>
+        {shops.map((s) => (
+          <li key={s.slug}>
+            <a href={`tel:${s.phone.tel}`}>
+              <Phone size={15} />
+              <span>
+                <strong>{s.city}</strong>
+                <em>{s.phone.display}</em>
+              </span>
+            </a>
+          </li>
+        ))}
+        <li>
+          <a className="qc__wa-row" href={whatsapp} target="_blank" rel="noreferrer noopener">
+            <MessageCircle size={15} />
+            <span>
+              <strong>{labels.whatsapp}</strong>
+            </span>
+          </a>
+        </li>
+      </ul>
 
-          <button
-            className={`qc__fab ${open ? "is-open" : ""}`}
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-label={open ? "Cerrar contacto rápido" : "Contacto rápido"}
-          >
-            {open ? <X size={21} /> : <Phone size={20} />}
-            <span className="qc__ring" aria-hidden />
-          </button>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      <button
+        className={`qc__fab ${menuOpen ? "is-open" : ""}`}
+        type="button"
+        onClick={() => setOpen(!menuOpen)}
+        aria-expanded={menuOpen}
+        aria-controls="quick-call-menu"
+        aria-label={menuOpen ? labels.close : labels.open}
+      >
+        {menuOpen ? <X size={21} /> : <Phone size={20} />}
+        <span className="qc__ring" aria-hidden />
+      </button>
+    </div>
   );
 }

@@ -2,8 +2,9 @@
    MagicBento del sitio: la rejilla de servicios.
    Tarjetas con foto, esquinas rectas y el verde del logo. Los efectos (foco,
    borde que se enciende, partículas, imán, onda y el borde especular del
-   hover) los mueve MagicBento.tsx; aquí ninguna regla toca el transform de
-   la tarjeta.
+   hover) los mueve services/bento-effects.tsx, que se carga aparte sobre el
+   HTML de services/ServiceBento.tsx; aquí ninguna regla toca el transform
+   de la tarjeta.
 
    Capas de cada tarjeta, de atrás hacia delante:
      .bento-card__clip     la foto y el negro que la tapa en el hover   (z 0)
@@ -287,9 +288,11 @@
 }
 
 /* El lienzo que pone specular-frame.ts; se lleva su propio tamaño */
+/* inset se mide desde dentro del borde de 1px de la tarjeta: -21px deja el
+   lienzo centrado sobre el borde exterior, que es donde dibuja el trazo */
 .bento-card__fx {
   position: absolute;
-  inset: -20px;
+  inset: -21px;
   z-index: 4;
   pointer-events: none;
 }

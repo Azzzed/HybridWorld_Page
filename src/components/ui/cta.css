@@ -8,6 +8,38 @@
   white-space: nowrap;
 }
 
+/* Hasta que el borde WebGL está listo, uno verde fijo */
+.specular-button.cta:not(.specular-button--ready) {
+  box-shadow: inset 0 0 0 1px rgba(18, 224, 107, 0.55);
+}
+
+/* Pantallas táctiles: sin WebGL. La luz que recorre el borde es un degradado
+   cónico que gira, solo con CSS (el mismo recurso que .neon en base.css). */
+@media (hover: none), (pointer: coarse) {
+  .specular-button.cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    padding: 1.6px;
+    background: conic-gradient(
+      from var(--neon-angle),
+      transparent 0deg,
+      rgba(18, 224, 107, 0.9) 40deg,
+      #c8ffe0 62deg,
+      rgba(18, 224, 107, 0.9) 84deg,
+      transparent 130deg,
+      transparent 360deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: neonSpin 5.5s linear infinite;
+  }
+}
+
 .specular-button.cta .specular-button__label {
   display: inline-flex;
   align-items: center;

@@ -45,10 +45,37 @@
   z-index: 1;
 }
 
+/* El canvas tapa el póster solo cuando ya pintó su primer fotograma: hasta
+   entonces es negro (contexto sin alfa) y escondería la imagen. */
 .hero-scroll__frames {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+  opacity: 0;
+}
+
+.hero-scroll__frames.is-painted {
+  opacity: 1;
+}
+
+/* Póster: el primer fotograma en el HTML del servidor, con el mismo encuadre
+   con el que el canvas pinta ese fotograma (FrameSequence: PAN.start en el
+   horizontal, el auto pegado a la derecha en el vertical). */
+.hero-scroll__poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 35% 50%;
+}
+
+@media (max-width: 860px) and (orientation: portrait), (max-aspect-ratio: 3/4) {
+  .hero-scroll__poster img {
+    object-position: 100% 50%;
+  }
 }
 
 /* ==========================================================================

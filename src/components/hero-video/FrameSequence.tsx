@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useImperativeHandle, useRef } from 'react'
 import type { Ref } from 'react'
 import { FRAME_COUNT, SOURCES, VERTICAL_QUERY, crossingAt, focusAt, frameUrl } from './sequence'
@@ -26,13 +28,31 @@ const PARALLEL = 6
  * Orden de descarga: el fotograma que se ve, los dos extremos y después de
  * grueso a fino (uno de cada 16, de cada 8…). Si se hace scroll antes de que
  * termine la descarga, el giro ya se entiende con los que hay.
+ *
+ * `step` salta fotogramas: con 2 se baja uno de cada dos (móvil) y el giro
+ * usa el vecino más cercano para los que faltan.
  */
-function loadOrder(first: number) {
-  const order = [first, 0, FRAME_COUNT - 1]
-  for (let stride = 16; stride >= 1; stride /= 2) {
+function loadOrder(first: number, step: number) {
+  const snap = (i: number) => Math.min(FRAME_COUNT - 1, Math.round(i / step) * step)
+  const order = [snap(first), 0, FRAME_COUNT - 1]
+  for (let stride = 16; stride >= step; stride /= 2) {
     for (let i = 0; i < FRAME_COUNT; i += stride) order.push(i)
   }
   return [...new Set(order)]
+}
+
+/** Móvil: el video vertical baja la mitad de los fotogramas. */
+const stepFor = (source: Source) => (source.framing === 'follow' ? 2 : 1)
+
+type NetworkInformation = { saveData?: boolean; effectiveType?: string }
+
+/**
+ * Sin secuencia, solo el póster: con el ahorro de datos activado o en
+ * conexiones lentas no vale la pena bajar decenas de imágenes.
+ */
+function posterOnly() {
+  const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection
+  return Boolean(connection?.saveData) || ['slow-2g', '2g', '3g'].includes(connection?.effectiveType ?? '')
 }
 
 type FrameSet = {
@@ -51,6 +71,11 @@ type FrameSet = {
  * El video vertical va en móviles y tabletas en vertical; el horizontal, en
  * el resto. Cada uno se descarga la primera vez que hace falta, así que girar
  * el móvil cambia de uno a otro sin volver a bajar el que ya estaba.
+ *
+ * Debajo del canvas está el póster (el primer fotograma, en el HTML del
+ * servidor). El canvas no se ve hasta pintar su primer fotograma, y la
+ * secuencia no empieza a bajar hasta que la página terminó de cargar (o hasta
+ * el primer scroll), así no compite con lo que se ve al entrar.
  */
 export default function FrameSequence({ ref }: { ref?: Ref<FrameSequenceHandle> }) {
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -78,6 +103,8 @@ export default function FrameSequence({ ref }: { ref?: Ref<FrameSequenceHandle> 
     let drawn: HTMLImageElement | null = null
     let raf = 0
     let last = 0
+    /** La secuencia puede empezar a bajar: página cargada o primer scroll */
+    let allowed = false
 
     /** El fotograma descargado de un video más cercano al que toca. */
     const nearest = (set: FrameSet, wanted: number) => {
@@ -104,6 +131,7 @@ export default function FrameSequence({ ref }: { ref?: Ref<FrameSequenceHandle> 
         focus = Math.min(1 - visible / 2, Math.max(visible / 2, focusAt(source, index)))
       }
       ctx.drawImage(set.images[index], (width / 2 - focus * w) * dpr, ((height - h) / 2) * dpr, w * dpr, h * dpr)
+      el.classList.add('is-painted')
     }
 
     /**
@@ -156,7 +184,7 @@ export default function FrameSequence({ ref }: { ref?: Ref<FrameSequenceHandle> 
     const activate = (source: Source) => {
       let set = sets.get(source)
       if (!set) {
-        set = { source, images: [], ready: [], queue: loadOrder(Math.round(target)) }
+        set = { source, images: [], ready: [], queue: loadOrder(Math.round(target), stepFor(source)) }
         sets.set(source, set)
       }
       active = set
@@ -182,9 +210,33 @@ export default function FrameSequence({ ref }: { ref?: Ref<FrameSequenceHandle> 
       // hero, se empieza por ese fotograma y sin animar desde el principio.
       if (!active) {
         current = target
-        activate(vertical.matches ? SOURCES.vertical : SOURCES.wide)
+        if (allowed) activate(vertical.matches ? SOURCES.vertical : SOURCES.wide)
+        return
       }
       if (!raf) raf = requestAnimationFrame(tick)
+    }
+
+    // Arranque de la secuencia: tras el load y con el navegador libre, o con
+    // el primer scroll si llega antes. Con ahorro de datos, nunca: se queda
+    // el póster.
+    const allow = () => {
+      if (allowed || disposed) return
+      allowed = true
+      window.removeEventListener('scroll', allow)
+      current = target
+      activate(vertical.matches ? SOURCES.vertical : SOURCES.wide)
+    }
+    let idle = 0
+    const onLoad = () => {
+      idle =
+        typeof window.requestIdleCallback === 'function'
+          ? window.requestIdleCallback(allow, { timeout: 2000 })
+          : window.setTimeout(allow, 200)
+    }
+    if (!posterOnly()) {
+      window.addEventListener('scroll', allow, { once: true, passive: true })
+      if (document.readyState === 'complete') onLoad()
+      else window.addEventListener('load', onLoad, { once: true })
     }
 
     // Cambiar el tamaño del canvas lo borra: se repinta enseguida.
@@ -209,6 +261,10 @@ export default function FrameSequence({ ref }: { ref?: Ref<FrameSequenceHandle> 
 
     return () => {
       disposed = true
+      window.removeEventListener('scroll', allow)
+      window.removeEventListener('load', onLoad)
+      if (typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(idle)
+      window.clearTimeout(idle)
       cancelAnimationFrame(raf)
       observer.disconnect()
       vertical.removeEventListener('change', reorient)

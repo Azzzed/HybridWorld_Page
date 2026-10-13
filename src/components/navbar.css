@@ -9,6 +9,21 @@
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
   will-change: transform;
+  transition:
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s;
+}
+
+/* Home en escritorio: fuera de pantalla hasta que el hero se va. En móvil
+   el header se ve siempre (llamar y WhatsApp a la vista). */
+@media (min-width: 721px) {
+  .nav[data-hidden="true"] {
+    transform: translate3d(0, -110%, 0);
+    visibility: hidden;
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s 0.45s;
+  }
 }
 
 .nav__in {
@@ -78,7 +93,8 @@
   transition: right 0.3s var(--ease-out);
 }
 
-.nav__links a:hover {
+.nav__links a:hover,
+.nav__links a[aria-current="page"] {
   color: var(--text);
 }
 
@@ -106,6 +122,35 @@
   color: var(--neon);
 }
 
+/* Idioma */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  transition: color 0.25s var(--ease-out);
+}
+
+.lang-switch:hover {
+  color: var(--neon);
+}
+
+/* Llamar y WhatsApp como iconos: solo en móvil */
+.nav__icon {
+  display: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line-2);
+  color: var(--neon);
+  transition: border-color 0.25s var(--ease-out);
+}
+
+.nav__icon:hover {
+  border-color: var(--neon-dim);
+}
+
 .nav__burger {
   display: none;
   padding: 9px;
@@ -128,6 +173,45 @@
   gap: 0;
   padding: 20px var(--pad) 40px;
   background: #000;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, -12px, 0);
+  transition:
+    opacity 0.28s var(--ease-out),
+    transform 0.28s var(--ease-out),
+    visibility 0s 0.28s;
+}
+
+.drawer[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.28s var(--ease-out),
+    transform 0.28s var(--ease-out),
+    visibility 0s;
+}
+
+.drawer > a {
+  opacity: 0;
+  transform: translate3d(-18px, 0, 0);
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
+}
+
+.drawer[data-open="true"] > a {
+  opacity: 1;
+  transform: none;
+}
+
+.drawer__lang {
+  margin-top: 18px;
+  justify-content: center;
+  font-size: 0.95rem !important;
+  border-bottom: 0 !important;
+  padding: 0 !important;
 }
 
 .drawer a {
@@ -172,8 +256,21 @@
 
 @media (max-width: 720px) {
   .nav__phone,
-  .nav__cta {
+  .nav__cta,
+  .nav__lang {
     display: none;
+  }
+  .nav__icon {
+    display: grid;
+  }
+  .nav__actions {
+    gap: 8px;
+  }
+  .nav__in {
+    padding-block: 9px;
+  }
+  .drawer {
+    inset: 59px 0 0;
   }
   .nav__brand em {
     display: none;

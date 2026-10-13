@@ -32,3 +32,10 @@ archivo/hero-3d/public/models/*.glb
 
 # Capturas locales de revisión
 .preview/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.vercel

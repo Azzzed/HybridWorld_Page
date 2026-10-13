@@ -1,4 +1,29 @@
-/* ---- SplitText ---- */
+/* ---- Reveal y SplitText ----
+   El contenido está en el HTML y visible por defecto. Solo cuando hay
+   JavaScript (scripting: enabled) se esconde hasta que RevealObserver le pone
+   `is-in`; sin JavaScript, o en navegadores que no conocen la consulta, se
+   ve sin animación. */
+
+@media (scripting: enabled) {
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+    transition:
+      opacity 0.7s var(--ease-out) var(--reveal-delay, 0s),
+      transform 0.7s var(--ease-out) var(--reveal-delay, 0s);
+  }
+
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* El titular espera entero hasta partirse en letras */
+  [data-split]:not(.is-split):not(.is-in) {
+    opacity: 0;
+  }
+}
+
 .st-word {
   display: inline-block;
   white-space: nowrap;
@@ -6,5 +31,15 @@
 
 .st-char {
   display: inline-block;
-  will-change: transform, opacity;
+  opacity: 0;
+  transform: translate3d(0, 0.5em, 0);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * var(--split-step, 18ms));
+}
+
+[data-split].is-in .st-char {
+  opacity: 1;
+  transform: none;
 }

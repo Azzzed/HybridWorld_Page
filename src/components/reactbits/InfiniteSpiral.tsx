@@ -1,4 +1,7 @@
+'use client';
+
 import { useEffect, useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
+import Image from 'next/image';
 import './InfiniteSpiral.css';
 
 export interface InfiniteSpiralItem {
@@ -271,10 +274,13 @@ const InfiniteSpiral = ({
       <div className="infinite-spiral__stage" role="list" aria-label="Infinite spiral gallery">
         {normalizedItems.map((item, index) => {
           const content = (
-            <img
+            <Image
               className="infinite-spiral__image"
               src={item.src}
               alt={item.alt}
+              width={cardWidth}
+              height={cardHeight}
+              sizes={`${Math.round(cardWidth * centerScale)}px`}
               loading={index < 6 ? 'eager' : 'lazy'}
               draggable={false}
               style={imageStyle}

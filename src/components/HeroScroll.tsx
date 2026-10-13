@@ -1,4 +1,6 @@
-import { Fragment, useCallback, useRef } from "react";
+"use client";
+
+import { Fragment, useCallback, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -14,9 +16,21 @@ import FrameSequence from "./hero-video/FrameSequence";
 import type { FrameSequenceHandle } from "./hero-video/FrameSequence";
 import { useScrollProgress } from "./hero-video/useScrollProgress";
 import { Cta } from "./ui/Cta";
-import { site } from "../data/site";
-import { locations } from "../data/locations";
 import "./hero-scroll.css";
+
+/** Textos del hero, ya en el idioma de la página (content/*.ts). */
+export type HeroContent = {
+  h1: string;
+  wordmark: [string, string];
+  lede: string;
+  callCta: string;
+  aboutCta: string;
+  features: [string, string][];
+  outroTitle: [string, string];
+  outroLede: string;
+  locationsCta: string;
+  scrollCue: string;
+};
 
 /**
  * Hero de dos paneles gobernado por el scroll.
@@ -67,17 +81,23 @@ const beamY = (x: number) =>
   BEAM_NARROW.y1 + (BEAM_NARROW.y2 - BEAM_NARROW.y1) * ((x - BEAM_NARROW.x1) / (BEAM_NARROW.x2 - BEAM_NARROW.x1));
 const SHADE_NARROW = `0,0 100,0 100,${beamY(100).toFixed(2)} 0,${beamY(0).toFixed(2)}`;
 
-const FEATURES: { icon: LucideIcon; label: [string, string] }[] = [
-  { icon: Leaf, label: ["Mayor", "eficiencia"] },
-  { icon: ShieldCheck, label: ["Diagnóstico", "profesional"] },
-  { icon: Settings, label: ["Reparación", "garantizada"] },
-];
+const FEATURE_ICONS: LucideIcon[] = [Leaf, ShieldCheck, Settings];
 
-function Features({ className = "", lead, enter }: { className?: string; lead?: LucideIcon; enter?: number }) {
+function Features({
+  labels,
+  className = "",
+  lead,
+  enter,
+}: {
+  labels: [string, string][];
+  className?: string;
+  lead?: LucideIcon;
+  enter?: number;
+}) {
   return (
     <ul className={`hero-scroll__features ${className}`} data-enter={enter}>
-      {FEATURES.map(({ icon, label: [first, second] }, i) => {
-        const Icon = i === 0 && lead ? lead : icon;
+      {labels.map(([first, second], i) => {
+        const Icon = i === 0 && lead ? lead : FEATURE_ICONS[i];
         return (
           <li key={first}>
             <Icon size={30} strokeWidth={1.6} />
@@ -93,7 +113,22 @@ function Features({ className = "", lead, enter }: { className?: string; lead?: 
   );
 }
 
-export default function HeroScroll() {
+export default function HeroScroll({
+  content,
+  poster,
+  phone,
+  cities,
+  aboutHref,
+  locationsHref,
+}: {
+  content: HeroContent;
+  /** Primer fotograma como imagen estática (se arma en el servidor) */
+  poster: ReactNode;
+  phone: { display: string; tel: string };
+  cities: string[];
+  aboutHref: string;
+  locationsHref: string;
+}) {
   const section = useRef<HTMLElement>(null);
   const frames = useRef<FrameSequenceHandle>(null);
   const intro = useRef<HTMLDivElement>(null);
@@ -143,6 +178,7 @@ export default function HeroScroll() {
       <div className="hero-scroll__stage">
         {/* ---------- 1. Video ---------- */}
         <div className="hero-scroll__media">
+          {poster}
           <FrameSequence ref={frames} />
         </div>
 
@@ -223,34 +259,32 @@ export default function HeroScroll() {
         <div className="hero-scroll__panels">
           <div className="hero-scroll__panel hero-scroll__panel--intro" ref={intro}>
             <div className="hero-scroll__head">
-              <p className="hero-scroll__eyebrow">
-                <span>{site.tagline}</span>
-              </p>
-
-              <h1 className="hero-scroll__title">
-                <span className="hero-scroll__word hero-scroll__word--chrome">Hybrid</span>
-                <span className="hero-scroll__word hero-scroll__word--neon">World</span>
+              {/* El H1 es la línea descriptiva; el logotipo grande es decorativo */}
+              <h1 className="hero-scroll__eyebrow">
+                <span>{content.h1}</span>
               </h1>
 
-              <p className="hero-scroll__lede">
-                Baterías híbridas, diagnóstico y reparación general. Tres talleres en
-                California. Llama ya.
+              <p className="hero-scroll__title">
+                <span className="hero-scroll__word hero-scroll__word--chrome">{content.wordmark[0]}</span>
+                <span className="hero-scroll__word hero-scroll__word--neon">{content.wordmark[1]}</span>
               </p>
+
+              <p className="hero-scroll__lede">{content.lede}</p>
             </div>
 
             <div className="hero-scroll__foot">
               <div className="hero-scroll__cta">
-                <a className="hero-scroll__btn" href={site.mainPhoneHref}>
+                <a className="hero-scroll__btn" href={`tel:${phone.tel}`}>
                   <Phone size={19} strokeWidth={2.2} />
-                  Contacto
+                  {content.callCta}
                   <ArrowRight size={19} strokeWidth={2.2} />
                 </a>
-                <Cta href="#servicios" size="lg" className="hero-scroll__cta-ghost">
-                  Acerca de nosotros <ArrowRight size={19} strokeWidth={2} />
+                <Cta href={aboutHref} size="lg" className="hero-scroll__cta-ghost">
+                  {content.aboutCta} <ArrowRight size={19} strokeWidth={2} />
                 </Cta>
               </div>
 
-              <Features />
+              <Features labels={content.features} />
             </div>
 
             <ChevronDown className="hero-scroll__chevron" size={30} strokeWidth={1.4} aria-hidden />
@@ -263,7 +297,7 @@ export default function HeroScroll() {
               <div className="hero-scroll__close-head">
                 <p className="hero-scroll__eyebrow hero-scroll__eyebrow--end" data-enter={0}>
                   <span>
-                    {locations.map(({ city }, i) => (
+                    {cities.map((city, i) => (
                       <Fragment key={city}>
                         {i > 0 && (
                           <>
@@ -279,40 +313,37 @@ export default function HeroScroll() {
 
                 <h2 className="hero-scroll__subtitle">
                   <span className="hero-scroll__word hero-scroll__word--chrome" data-enter={1}>
-                    Lo revisamos entero,
+                    {content.outroTitle[0]}
                   </span>{" "}
                   <span className="hero-scroll__word hero-scroll__word--neon" data-enter={2}>
-                    no solo la batería.
+                    {content.outroTitle[1]}
                   </span>
                 </h2>
               </div>
 
               <div className="hero-scroll__close-body" data-enter={3}>
-                <p className="hero-scroll__lede">
-                  Reconstrucción de baterías, diagnóstico y mecánica general para tu
-                  híbrido. Se habla español en los tres talleres.
-                </p>
+                <p className="hero-scroll__lede">{content.outroLede}</p>
 
                 <div className="hero-scroll__cta">
-                  <a className="hero-scroll__btn" href={site.mainPhoneHref}>
+                  <a className="hero-scroll__btn" href={`tel:${phone.tel}`}>
                     <Phone size={19} strokeWidth={2.2} />
-                    {site.mainPhone}
+                    {phone.display}
                     <ArrowRight size={19} strokeWidth={2.2} />
                   </a>
-                  <Cta href="#sucursales" size="lg" className="hero-scroll__cta-ghost">
-                    <MapPin size={18} /> Sucursales <ArrowRight size={19} strokeWidth={2} />
+                  <Cta href={locationsHref} size="lg" className="hero-scroll__cta-ghost">
+                    <MapPin size={18} /> {content.locationsCta} <ArrowRight size={19} strokeWidth={2} />
                   </Cta>
                 </div>
               </div>
             </div>
 
-            <Features className="hero-scroll__features--end" lead={BatteryCharging} enter={4} />
+            <Features labels={content.features} className="hero-scroll__features--end" lead={BatteryCharging} enter={4} />
 
             <div className="hero-scroll__cue" data-enter={5} aria-hidden="true">
               <svg viewBox="0 0 12 64">
                 <path d="M6 0v62M1 57l5 5 5-5" />
               </svg>
-              <span>Desliza</span>
+              <span>{content.scrollCue}</span>
             </div>
           </div>
         </div>
