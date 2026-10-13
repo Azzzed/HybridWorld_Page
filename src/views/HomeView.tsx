@@ -10,7 +10,7 @@ import {
   photos,
   services,
   shopPhotoKeys,
-  whatsappHref,
+  whatsappHrefForPhone,
   type Locale,
 } from "@/lib/business";
 import { hoursSummary, localePath } from "@/lib/i18n";
@@ -165,7 +165,7 @@ export default async function HomeView({ locale }: { locale: Locale }) {
               address: fullAddress(l),
               hours: hoursSummary(l.hours, locale),
               phone: l.phone,
-              whatsappHref: whatsappHref(`${c.ui.whatsappMessage} ${l.city}`),
+              whatsappHref: whatsappHrefForPhone(l.phone, `${c.ui.whatsappMessage} ${l.city}`),
               directionsHref: directionsHref(l),
             }))}
             labels={{

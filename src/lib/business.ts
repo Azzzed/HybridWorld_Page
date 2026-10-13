@@ -26,11 +26,10 @@ export const business = {
   name: "Hybrid World Inc",
   shortName: "Hybrid World",
   email: "hybridworldinc25@gmail.com",
-  // TODO(cliente): confirmar el teléfono general. El sitio anterior muestra
-  // también el (562) 376-0149: preguntar si sigue activo y para qué se usa.
-  phone: { display: "(562) 991-0729", tel: "+15629910729" } satisfies Phone,
-  // TODO(cliente): confirmar que este es el único WhatsApp para las tres sedes.
-  whatsapp: { display: "+1 562-991-0729", number: "15629910729" },
+  // Teléfono general confirmado como principal del negocio.
+  phone: { display: "(657) 267-9029", tel: "+16572679029" } satisfies Phone,
+  // WhatsApp principal del negocio; confirmar si es el único para las tres sedes.
+  whatsapp: { display: "+1 657 267 9029", number: "16572679029" },
   logo: "/img/logo.png",
   logoMark: "/img/logo-mark.png",
   // TODO(cliente): confirmar el rango de precios que se declara a Google.
@@ -40,9 +39,19 @@ export const business = {
   languages: ["English", "Spanish"],
 } as const;
 
+/** Convierte un teléfono al formato que usa WhatsApp sin el prefijo +. */
+export const phoneToWhatsAppNumber = (phone: Phone | string) => {
+  const raw = typeof phone === "string" ? phone : phone.tel;
+  return raw.replace(/\+/, "").replace(/\D/g, "");
+};
+
 /** Enlace de WhatsApp con un mensaje ya escrito. */
-export const whatsappHref = (text?: string) =>
-  `https://wa.me/${business.whatsapp.number}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
+export const whatsappHref = (text?: string, number: string = business.whatsapp.number as string) =>
+  `https://wa.me/${number}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
+
+/** Enlace de WhatsApp para una sucursal concreta, usando su teléfono directo. */
+export const whatsappHrefForPhone = (phone: Phone | string, text?: string) =>
+  whatsappHref(text, phoneToWhatsAppNumber(phone));
 
 /* ------------------------------------------------------------------ */
 /* Horario                                                             */
@@ -63,6 +72,10 @@ const MON_SAT_8_4: OpeningHours = [
 // cierra los sábados; el sitio anterior decía lunes a sábado de 8 a 4. Confirmar.
 const MON_FRI_830_4: OpeningHours = [
   { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "08:30", closes: "16:00" },
+];
+
+const MON_FRI_8_4: OpeningHours = [
+  { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "08:00", closes: "16:00" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -142,7 +155,7 @@ export const locations: Location[] = [
     region: "CA",
     phone: { display: "(408) 449-1311", tel: "+14084491311" },
     geo: { lat: 37.4154548, lng: -122.0967779 },
-    hours: MON_SAT_8_4,
+    hours: MON_FRI_8_4,
     google: { placeId: "ChIJRwwtlIS7j4ARuyH7Jt4waBE", rating: 4.7, count: 26 },
     nearby: ["Palo Alto", "Los Altos", "Sunnyvale", "Menlo Park", "Santa Clara", "Cupertino"],
     isNew: true,

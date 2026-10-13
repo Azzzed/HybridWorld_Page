@@ -3,7 +3,7 @@ import {
   directionsHref,
   fullAddress,
   locations,
-  whatsappHref,
+  whatsappHrefForPhone,
   type Locale,
   type LocationSlug,
 } from "@/lib/business";
@@ -61,7 +61,7 @@ export default async function LocationsView({ locale }: { locale: Locale }) {
                   <Cta href={`tel:${l.phone.tel}`} size="sm">
                     <Phone size={15} /> {l.phone.display}
                   </Cta>
-                  <CtaGhost href={whatsappHref(`${c.ui.whatsappMessage} ${l.city}`)} target="_blank" size="sm">
+                  <CtaGhost href={whatsappHrefForPhone(l.phone, `${c.ui.whatsappMessage} ${l.city}`)} target="_blank" size="sm">
                     <MessageCircle size={15} /> {c.ui.whatsapp}
                   </CtaGhost>
                   <CtaGhost href={directionsHref(l)} target="_blank" size="sm">

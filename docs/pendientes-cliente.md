@@ -17,8 +17,8 @@ dato o al texto que afecta.
 ## Datos del negocio (`src/lib/business.ts`)
 
 - [x] Teléfonos de las sedes: Norwalk (657) 267-9029 · Fullerton (562) 503-3183 · Mountain View (408) 449-1311 (confirmados).
-- [ ] Teléfono general: (562) 991-0729. El sitio anterior muestra también el (562) 376-0149: ¿sigue activo? ¿para qué es?
-- [ ] WhatsApp: +1 562-991-0729. ¿Es el único para las tres sedes o cada sede tiene el suyo?
+- [x] Teléfono general: (657) 267-9029.
+- [x] WhatsApp: +1 657 267 9029.
 - [ ] Rango de precios para Google (`priceRange: "$$"` en el JSON-LD; no se muestra en la página).
 - [ ] Ciudades de donde llegan más clientes a cada sede (aparecen como "Cerca de" en /locations y en el `areaServed` del JSON-LD).
 
