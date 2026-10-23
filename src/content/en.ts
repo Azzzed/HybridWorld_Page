@@ -44,6 +44,7 @@ export const en: SiteContent = {
     readReviews: "Read reviews on Google",
     writeReview: "Write a review",
     whatsappMessage: "Hi Hybrid World, I'd like information about:",
+    legal: { privacy: "Privacy Policy", terms: "Terms & Conditions", englishOnly: "" },
     cta: {
       title: "Talk to a hybrid specialist",
       text: "Call the shop closest to you or send us a WhatsApp message with your year, model and the warning you're seeing.",

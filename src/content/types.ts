@@ -47,6 +47,8 @@ export type SiteContent = {
     writeReview: string;
     whatsappMessage: string;
     cta: { title: string; text: string };
+    /** Enlaces a /privacy-policy y /terms (solo en inglés) */
+    legal: { privacy: string; terms: string; englishOnly: string };
     footer: {
       pitch: string;
       spanish: string;

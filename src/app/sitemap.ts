@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { LOCALES, SITE_URL } from "@/lib/business";
-import { localePath } from "@/lib/i18n";
+import { ENGLISH_ONLY_PATHS, localePath } from "@/lib/i18n";
 
 /** La home y las páginas del menú, en los dos idiomas y con sus alternativas hreflang. */
 const PATHS = ["/", "/services", "/locations", "/reviews", "/faq"];
@@ -8,6 +8,17 @@ const PATHS = ["/", "/services", "/locations", "/reviews", "/faq"];
 export default function sitemap(): MetadataRoute.Sitemap {
   const abs = (path: string) => new URL(path, SITE_URL).href;
 
+  // Los textos legales: solo en inglés, sin alternativas
+  const legal: MetadataRoute.Sitemap = ENGLISH_ONLY_PATHS.map((path) => ({
+    url: abs(path),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  }));
+
+  return [...pages(abs), ...legal];
+}
+
+function pages(abs: (path: string) => string): MetadataRoute.Sitemap {
   return PATHS.flatMap((path) =>
     LOCALES.map((locale) => ({
       url: abs(localePath(locale, path)),

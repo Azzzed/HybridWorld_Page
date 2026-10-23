@@ -18,6 +18,15 @@ export const splitLocale = (pathname: string): { locale: Locale; path: string } 
 
 export const otherLocale = (locale: Locale): Locale => (locale === "en" ? "es" : "en");
 
+/** Páginas que solo existen en inglés (los textos legales). */
+export const ENGLISH_ONLY_PATHS = ["/privacy-policy", "/terms"];
+
+/** La misma página en el otro idioma; si no existe en ese idioma, su home. */
+export const alternatePath = (locale: Locale, path: string) => {
+  const target = otherLocale(locale);
+  return localePath(target, target === "es" && ENGLISH_ONLY_PATHS.includes(path) ? "/" : path);
+};
+
 export const htmlLang: Record<Locale, string> = { en: "en", es: "es" };
 export const ogLocale: Record<Locale, string> = { en: "en_US", es: "es_US" };
 

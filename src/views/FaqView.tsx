@@ -4,6 +4,7 @@ import { faqItems, getContent } from "@/content";
 import PageIntro from "@/components/page/PageIntro";
 import CtaBand from "@/components/page/CtaBand";
 import FaqList from "@/components/FaqList";
+import LegalLinks from "@/components/LegalLinks";
 import JsonLd from "@/components/JsonLd";
 
 /** /faq: todas las preguntas, con su FAQPage (solo aquí, no en la home). */
@@ -18,6 +19,7 @@ export default function FaqView({ locale }: { locale: Locale }) {
         <PageIntro locale={locale} path="/faq" name={c.ui.nav.faq} eyebrow={c.home.faq.eyebrow} title={c.faqPage.h1} intro={c.faqPage.intro} />
         <div className="faq-page">
           <FaqList items={items} />
+          <LegalLinks locale={locale} className="faq-page__legal" />
         </div>
         <CtaBand locale={locale} />
       </div>

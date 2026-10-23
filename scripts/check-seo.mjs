@@ -13,6 +13,8 @@ import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "..", ".next", "server", "app");
 const SITE = "https://hybridworldinc.com";
+/** Páginas solo en inglés (textos legales): sin hreflang (src/lib/i18n.ts) */
+const ENGLISH_ONLY = ["/privacy-policy", "/terms"];
 
 /** Todos los .html prerenderizados, menos los internos de Next. */
 function htmlFiles(dir, base = "") {
@@ -65,7 +67,11 @@ function check(file) {
   const hreflang = Object.fromEntries(
     links.filter((l) => attr(l, "rel") === "alternate" && attr(l, "hrefLang")).map((l) => [attr(l, "hrefLang"), attr(l, "href")]),
   );
-  for (const lng of ["en", "es", "x-default"]) if (!hreflang[lng]?.startsWith(SITE)) problems.push(`sin hreflang ${lng}`);
+  if (ENGLISH_ONLY.includes(route)) {
+    if (Object.keys(hreflang).length) problems.push("hreflang en una página solo en inglés");
+  } else {
+    for (const lng of ["en", "es", "x-default"]) if (!hreflang[lng]?.startsWith(SITE)) problems.push(`sin hreflang ${lng}`);
+  }
 
   const ogImage = attr(meta("property", "og:image") ?? "", "content");
   if (!ogImage?.startsWith(SITE + "/og/")) problems.push(`og:image ${ogImage}`);

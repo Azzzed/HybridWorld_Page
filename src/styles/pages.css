@@ -505,3 +505,69 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+
+/* ---------- Textos legales (/privacy-policy, /terms) ---------- */
+.legal {
+  max-width: 760px;
+}
+
+.legal > p,
+.legal section p,
+.legal li {
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.legal section {
+  padding-top: clamp(24px, 3.4vw, 36px);
+}
+
+.legal h2 {
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  margin-bottom: 12px;
+}
+
+.legal section p + p {
+  margin-top: 10px;
+}
+
+.legal ul,
+.legal ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.legal li::marker {
+  color: var(--neon);
+}
+
+.legal a {
+  color: var(--neon);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Enlaces legales (footer y /faq) ---------- */
+.legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+.legal-links a {
+  color: var(--text-dim);
+  transition: color 0.25s var(--ease-out);
+}
+
+.legal-links a:hover {
+  color: var(--neon);
+}
+
+.faq-page__legal {
+  margin-top: 24px;
+}

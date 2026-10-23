@@ -5,6 +5,7 @@ import { business, fullAddress, locations, whatsappHref, type Locale } from "@/l
 import { hoursSummary, localePath } from "@/lib/i18n";
 import { getContent } from "@/content";
 import LangSwitch from "./layout/LangSwitch";
+import LegalLinks from "./LegalLinks";
 import "./footer.css";
 
 export default function Footer({ locale }: { locale: Locale }) {
@@ -107,6 +108,7 @@ export default function Footer({ locale }: { locale: Locale }) {
         <p>
           © {new Date().getFullYear()} {business.name}. {ui.footer.rights}
         </p>
+        <LegalLinks locale={locale} className="footer__legal-links" />
         <p className="footer__credits">{ui.footer.credits}</p>
       </div>
     </footer>

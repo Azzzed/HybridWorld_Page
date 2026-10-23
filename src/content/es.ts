@@ -45,6 +45,7 @@ export const es: SiteContent = {
     readReviews: "Leer reseñas en Google",
     writeReview: "Escribir una reseña",
     whatsappMessage: "Hola, quiero información del servicio:",
+    legal: { privacy: "Política de privacidad", terms: "Términos y condiciones", englishOnly: "(en inglés)" },
     cta: {
       title: "Habla con un especialista en híbridos",
       text: "Llama a la sucursal más cercana o mándanos un WhatsApp con el año, el modelo y el aviso que te aparece.",

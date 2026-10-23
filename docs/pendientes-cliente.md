@@ -22,6 +22,11 @@ dato o al texto que afecta.
 - [ ] Rango de precios para Google (`priceRange: "$$"` en el JSON-LD; no se muestra en la página).
 - [ ] Ciudades de donde llegan más clientes a cada sede (aparecen como "Cerca de" en /locations y en el `areaServed` del JSON-LD).
 
+## Textos legales (`src/content/legal.ts`)
+
+- [ ] El texto entregado traía `[email]`; se usó hybridworldinc25@gmail.com. Confirmar que es el correo que debe aparecer en la Política de privacidad y en los Términos.
+- [ ] Están solo en inglés. Si hace falta versión en español, pedir el texto traducido y revisado.
+
 ## Contenido
 
 - [ ] "Reparación garantizada / Guaranteed repairs" en el hero y la respuesta sobre garantía en /faq: plazo y condiciones.

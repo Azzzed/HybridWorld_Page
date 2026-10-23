@@ -35,6 +35,7 @@ Hace falta Node 20.9 o superior.
 | `/locations` | Las 3 sedes (`#norwalk`, `#fullerton`, `#mountain-view`): dirección, teléfono, horario, mapa y nota de Google |
 | `/reviews` | La nota de Google de cada sede, enlaces para leer y dejar reseñas, y las reseñas recientes |
 | `/faq` | Todas las preguntas frecuentes |
+| `/privacy-policy` · `/terms` | Política de privacidad y Términos y condiciones (incluyen los términos del programa de SMS). Solo en inglés, enlazadas desde el footer y `/faq`; el texto está en `src/content/legal.ts` |
 
 Son las secciones del menú: Google usa esas páginas para los enlaces que
 muestra debajo del resultado (sitelinks). Cada sección de la home enlaza a su

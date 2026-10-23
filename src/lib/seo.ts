@@ -18,27 +18,37 @@ export function pageMetadata({
   title,
   description,
   noindex = false,
+  translated = true,
+  image,
 }: {
   locale: Locale;
-  /** Ruta sin idioma ("/") */
+  /** Ruta sin idioma ("/", "/services"…) */
   path: string;
   title: string;
   description: string;
   noindex?: boolean;
+  /** false en las páginas que solo existen en inglés (los textos legales): sin hreflang */
+  translated?: boolean;
+  /** Imagen Open Graph propia; por defecto, la generada para la página */
+  image?: string;
 }): Metadata {
   const url = localePath(locale, path);
-  const image = { url: ogImagePath(locale, path), ...OG_SIZE, alt: title, type: "image/png" };
+  const og = { url: image ?? ogImagePath(locale, path), ...OG_SIZE, alt: title, type: "image/png" };
 
   return {
     title: { absolute: title },
     description,
     alternates: {
       canonical: url,
-      languages: {
-        en: localePath("en", path),
-        es: localePath("es", path),
-        "x-default": localePath("en", path),
-      },
+      ...(translated
+        ? {
+            languages: {
+              en: localePath("en", path),
+              es: localePath("es", path),
+              "x-default": localePath("en", path),
+            },
+          }
+        : {}),
     },
     openGraph: {
       type: "website",
@@ -47,14 +57,14 @@ export function pageMetadata({
       title,
       description,
       locale: ogLocale[locale],
-      alternateLocale: ogLocale[otherLocale(locale)],
-      images: [image],
+      ...(translated ? { alternateLocale: ogLocale[otherLocale(locale)] } : {}),
+      images: [og],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [og],
     },
     ...(noindex ? { robots: { index: false, follow: true } } : {}),
   };
