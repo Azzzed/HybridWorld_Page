@@ -1,4 +1,4 @@
-import { business } from "@/lib/business";
+import { business, fullAddress, mainLocation } from "@/lib/business";
 
 /**
  * Política de privacidad y Términos y condiciones, tal como los entregó el
@@ -29,8 +29,11 @@ export type LegalDoc = {
 };
 
 const EFFECTIVE_DATE = "October 22, 2026";
-const ADDRESS = "2362 Old Middlefield Way, Ste B2, Mountain View, CA 94043";
-const PHONE = "(408) 449-1311";
+/* Los datos de contacto son los de la casa matriz (Norwalk), tomados de
+   business.ts para que no se desincronicen del resto del sitio. */
+const ADDRESS = fullAddress(mainLocation);
+export const LEGAL_PHONE = mainLocation.phone;
+const PHONE = LEGAL_PHONE.display;
 const EMAIL = business.email;
 
 const contact: LegalSection = {

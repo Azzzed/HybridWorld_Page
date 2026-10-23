@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { business } from "@/lib/business";
-import type { LegalDoc } from "@/content/legal";
+import { LEGAL_PHONE, type LegalDoc } from "@/content/legal";
 import PageIntro from "@/components/page/PageIntro";
 
 /** Enlaces dentro del texto: el correo, el teléfono y la URL de la política. */
@@ -23,10 +23,10 @@ const LINKS: { match: string; render: (key: number) => ReactNode }[] = [
     ),
   },
   {
-    match: "(408) 449-1311",
+    match: LEGAL_PHONE.display,
     render: (key) => (
-      <a key={key} href="tel:+14084491311">
-        (408) 449-1311
+      <a key={key} href={`tel:${LEGAL_PHONE.tel}`}>
+        {LEGAL_PHONE.display}
       </a>
     ),
   },
