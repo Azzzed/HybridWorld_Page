@@ -74,12 +74,13 @@ export const en: SiteContent = {
       lede: "Hybrid batteries, diagnostics and full repair. Three shops in California. Give us a call.",
       callCta: "Call now",
       aboutCta: "About us",
-      // TODO(cliente): "Guaranteed repairs" se apoya en "We guarantee the quality of our
-      // workmanship" del sitio anterior; confirmar que pueden prometerlo así.
+      // "Guaranteed repairs" se quitó: sin términos de garantía publicados es una
+      // afirmación que Google Ads puede rechazar. Si el cliente publica la garantía
+      // (meses/millas), se puede volver a poner con enlace a esos términos.
       features: [
         ["Better", "fuel economy"],
         ["Professional", "diagnostics"],
-        ["Guaranteed", "repairs"],
+        ["Complete", "repair"],
       ],
       outroTitle: ["We check the whole car,", "not just the battery."],
       outroLede:
@@ -268,9 +269,9 @@ export const en: SiteContent = {
       a: "A warning appears on the dash. On a Prius it's the red triangle with codes P0A80 or P3000. Lower fuel economy and an engine that runs all the time are other common signs.",
     },
     {
-      // TODO(cliente): confirmar la cifra "hasta 90% del rendimiento a ~1/4 del costo" (viene del sitio actual).
+      // Sin la cifra "hasta 90% del rendimiento a ~1/4 del costo": no hay cómo respaldarla.
       q: "Why choose a rebuilt battery?",
-      a: "Up to 90% of the performance for about a quarter of the dealership price.",
+      a: "It usually costs much less than a new battery from the dealership. We test the pack module by module, replace the weak cells and balance it before it goes back in your car. Ask us for a quote.",
     },
     {
       q: "Do you speak Spanish?",
@@ -291,7 +292,7 @@ export const en: SiteContent = {
     {
       // TODO(cliente): plazo y condiciones de la garantía.
       q: "Do you offer a warranty?",
-      a: "Yes. We guarantee the quality of our workmanship and offer warranty packages for our services. Ask for the terms of your repair.",
+      a: "Yes. We stand behind our work and offer warranty packages for our services. Ask us for the warranty terms of your repair before you approve the work.",
     },
   ],
 };

@@ -89,7 +89,9 @@ servidor.
 - `/sitemap.xml`, `/robots.txt` y una 404 bilingüe.
 - Las URLs del sitio de GoDaddy redirigen con 301 (`next.config.ts`):
   `/about-us-1` → `/`; `/price-list-1` → `/services`; `/contact-us-1` y
-  `/ola/services/schedule-service` → `/locations`; `/gallery` → `/#gallery`.
+  `/ola/services/schedule-service` → `/locations`; `/gallery` → `/#gallery`;
+  `/blank-2` (contacto del sitio de 2022) y `/m/*` (área de clientes de
+  GoDaddy) → `/locations`.
   `/services` conserva su URL.
 
 ## Dónde editar
@@ -136,8 +138,11 @@ reseñas en Google» y «Escribir una reseña» de cada sede funcionan siempre.
 
 - `vercel.json` fija el framework en Next.js: el proyecto estaba configurado
   como Vite.
-- `metadataBase` apunta a `https://hybridworldinc.com`. Al conectar el dominio,
-  redirigir `hybridworldinc.vercel.app` a él.
+- El dominio canónico es `https://www.hybridworldinc.com` (`SITE_URL` en
+  `business.ts`): Vercel redirige `hybridworldinc.com` a www con 308. Si algún
+  día se invierte en Vercel, hay que cambiar `SITE_URL` y `scripts/check-seo.mjs`.
+- Google Tag Manager (`GTM-TXSJT9FL`) solo se carga en producción; ver
+  [docs/seguimiento.md](docs/seguimiento.md).
 
 ## Estructura
 

@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
       { source: "/price-list-1", destination: "/services", statusCode: 301 },
       { source: "/ola/services/schedule-service", destination: "/locations", statusCode: 301 },
       { source: "/gallery", destination: "/#gallery", statusCode: 301 },
+      // Sitio de 2022 (Wix): /blank-2 era la página de contacto
+      { source: "/blank-2", destination: "/locations", statusCode: 301 },
+      // Área de clientes y citas de GoDaddy (/m/login, /m/create-account, /m/bookings…)
+      { source: "/m/:path*", destination: "/locations", statusCode: 301 },
     ];
   },
 };

@@ -10,7 +10,12 @@
  * World; la lista completa está en docs/pendientes-cliente.md.
  */
 
-export const SITE_URL = "https://hybridworldinc.com";
+/**
+ * Dominio canónico. Vercel sirve el sitio en www y redirige hybridworldinc.com
+ * a www con 308, así que canonical, hreflang, sitemap y JSON-LD van con www:
+ * si apuntaran a la versión sin www, Google vería un canonical que redirige.
+ */
+export const SITE_URL = "https://www.hybridworldinc.com";
 
 export const LOCALES = ["en", "es"] as const;
 export type Locale = (typeof LOCALES)[number];

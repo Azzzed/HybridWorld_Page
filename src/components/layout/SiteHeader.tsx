@@ -70,7 +70,7 @@ export default function SiteHeader({ locale, homeHref, brand, nav, phone, whatsa
             <Image src={brand.logoMark} alt="" width={48} height={35} />
             <span>
               <strong>Hybrid World</strong>
-              <em>Auto Repair</em>
+              <em>Inc</em>
             </span>
           </Link>
 

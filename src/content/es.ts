@@ -75,11 +75,11 @@ export const es: SiteContent = {
       lede: "Baterías híbridas, diagnóstico y reparación general. Tres talleres en California. Llama ya.",
       callCta: "Llamar",
       aboutCta: "Acerca de nosotros",
-      // TODO(cliente): confirmar "Reparación garantizada" (ver nota en en.ts).
+      // Sin "Reparación garantizada" (ver la nota en en.ts).
       features: [
         ["Mayor", "eficiencia"],
         ["Diagnóstico", "profesional"],
-        ["Reparación", "garantizada"],
+        ["Reparación", "completa"],
       ],
       outroTitle: ["Lo revisamos entero,", "no solo la batería."],
       outroLede:
@@ -268,7 +268,7 @@ export const es: SiteContent = {
     },
     {
       q: "¿Por qué una batería reconstruida?",
-      a: "Hasta 90% del rendimiento a cerca de una cuarta parte del costo de la agencia.",
+      a: "Suele costar mucho menos que una batería nueva de la agencia. Probamos el paquete módulo por módulo, cambiamos las celdas débiles y lo balanceamos antes de instalarlo. Pídenos una cotización.",
     },
     {
       q: "¿Atienden en español?",
@@ -288,7 +288,7 @@ export const es: SiteContent = {
     },
     {
       q: "¿Dan garantía?",
-      a: "Sí. Garantizamos la calidad de nuestro trabajo y ofrecemos paquetes de garantía para nuestros servicios. Pregunta los términos de tu reparación.",
+      a: "Sí. Respaldamos nuestro trabajo y ofrecemos paquetes de garantía para nuestros servicios. Pregúntanos los términos de garantía de tu reparación antes de aprobar el trabajo.",
     },
   ],
 };

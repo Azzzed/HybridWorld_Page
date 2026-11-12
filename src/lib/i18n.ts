@@ -9,7 +9,10 @@ export const localePath = (locale: Locale, path: string) => {
 };
 
 /** Separa el idioma de una ruta: "/es/faq" → { locale: "es", path: "/faq" }. */
-export const splitLocale = (pathname: string): { locale: Locale; path: string } => {
+export const splitLocale = (rawPathname: string): { locale: Locale; path: string } => {
+  // Al regenerar la home (ISR), usePathname() devuelve "/index" en el servidor:
+  // sin esto, el cambio de idioma de la home apuntaba a /es/index (404).
+  const pathname = rawPathname.replace(/\/index$/, "") || "/";
   if (pathname === "/es" || pathname.startsWith("/es/")) {
     return { locale: "es", path: pathname.slice(3) || "/" };
   }

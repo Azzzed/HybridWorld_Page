@@ -12,6 +12,7 @@ dato o al texto que afecta.
 
 - [ ] **Horario de Fullerton**: Google dice lunes a viernes de 8:30 a 4:00, sábado cerrado; el sitio anterior decía lunes a sábado de 8 a 4. El sitio nuevo usa el de Google: confirmar cuál es el real y que coincida en los dos lados.
 - [ ] La ficha de Fullerton se llama **"HW fullerton"**; las otras dos, "Hybrid World, Inc.". Conviene renombrarla igual que las otras.
+- [ ] Datos viejos que pueden seguir en directorios (Yelp, Facebook, Bing, Apple, BBB…): teléfonos **(714) 880-4499** y **(562) 888-9770** y el correo **hybridworld2022@gmail.com** (salían en el sitio de 2022). Buscarlos y cambiarlos por los actuales.
 - [ ] Mountain View: la ficha dice "2362 Old Middlefield Way **B2**"; el sitio ahora también lo dice. Confirmar el número de local.
 
 ## Datos del negocio (`src/lib/business.ts`)
@@ -29,8 +30,8 @@ dato o al texto que afecta.
 
 ## Contenido
 
-- [ ] "Reparación garantizada / Guaranteed repairs" en el hero y la respuesta sobre garantía en /faq: plazo y condiciones.
-- [ ] Cifra "hasta 90% del rendimiento a ~1/4 del costo de la agencia" (preguntas frecuentes): ¿es correcta?
+- [ ] Garantía: plazo (meses/millas) y condiciones por servicio. Se quitó "Reparación garantizada / Guaranteed repairs" del hero porque, sin términos publicados, Google Ads puede rechazar la página; con los términos, se publica una página /warranty y se vuelve a poner.
+- [x] Se quitó la cifra "hasta 90% del rendimiento a ~1/4 del costo" (no había con qué respaldarla). Si el cliente tiene datos, se puede volver a poner.
 - [ ] Baterías: ¿instalan también baterías nuevas? ¿cuánto tarda el trabajo?
 - [ ] Qué incluye la "revisión multipunto" del cambio de aceite.
 - [ ] Nombre y foto del asesor de servicio de cada sede (la sección de sucursales de la home muestra hoy un rótulo genérico).
@@ -44,5 +45,5 @@ dato o al texto que afecta.
 
 - [ ] En Vercel: agregar `hybridworldinc.com` (y `www`) al proyecto y redirigir `hybridworldinc.vercel.app` al dominio.
 - [ ] Revisar en Vercel que el *Framework Preset* sea **Next.js** (`vercel.json` ya lo fija).
-- [ ] Google Search Console: verificar el dominio, enviar `https://hybridworldinc.com/sitemap.xml` y revisar que los redirects 301 del sitio viejo respondan.
-- [ ] En cada ficha de Google Business, poner como sitio web `https://hybridworldinc.com/locations` (o la home).
+- [ ] Google Search Console: verificar el dominio, enviar `https://www.hybridworldinc.com/sitemap.xml` y revisar que los redirects 301 del sitio viejo respondan.
+- [ ] En cada ficha de Google Business, poner como sitio web `https://www.hybridworldinc.com/locations` (o la home).

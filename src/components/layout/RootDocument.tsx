@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { business, locations, whatsappHref, type Locale } from "@/lib/business";
+import { business, locations, phoneToWhatsAppNumber, whatsappHref, type Locale } from "@/lib/business";
+import { analyticsEnabled } from "@/lib/analytics";
 import { localePath } from "@/lib/i18n";
 import { archivo, athiti } from "@/lib/fonts";
 import { getContent } from "@/content";
@@ -7,6 +8,8 @@ import SiteHeader from "./SiteHeader";
 import Footer from "../Footer";
 import QuickCall from "../QuickCall";
 import RevealObserver from "../ui/RevealObserver";
+import { GoogleTagManagerNoScript, GoogleTagManagerScript } from "../analytics/GoogleTagManager";
+import TrackContactClicks from "../analytics/TrackContactClicks";
 import "@/index.css";
 
 /**
@@ -28,6 +31,7 @@ export default function RootDocument({ locale, children }: { locale: Locale; chi
   return (
     <html lang={locale} className={`${archivo.variable} ${athiti.variable}`}>
       <body>
+        {analyticsEnabled && <GoogleTagManagerNoScript />}
         <a className="skip" href="#main">
           {ui.skip}
         </a>
@@ -62,6 +66,20 @@ export default function RootDocument({ locale, children }: { locale: Locale; chi
           }}
         />
         <RevealObserver />
+        {analyticsEnabled && (
+          <>
+            <GoogleTagManagerScript />
+            {/* Llamadas, WhatsApp y "cómo llegar" como eventos del dataLayer (conversiones de Google Ads) */}
+            <TrackContactClicks
+              shops={locations.map((l) => ({
+                slug: l.slug,
+                tel: l.phone.tel,
+                whatsapp: phoneToWhatsAppNumber(l.phone),
+                placeId: l.google.placeId,
+              }))}
+            />
+          </>
+        )}
       </body>
     </html>
   );

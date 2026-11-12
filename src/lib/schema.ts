@@ -39,7 +39,9 @@ function autoRepair(l: Location, locale: Locale, description: string) {
   return {
     "@type": "AutoRepair",
     "@id": shopId(l),
-    name: `${business.name} — ${l.city}`,
+    // Mismo nombre que la ficha de Google; la sede se distingue por @id, dirección y teléfono
+    name: business.name,
+    branchCode: l.slug,
     description,
     url: abs(`${localePath(locale, "/locations")}#${l.slug}`),
     image: abs(photos[l.photo].src),

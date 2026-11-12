@@ -42,7 +42,7 @@ export default function QuickCall({ shops, whatsapp, labels }: QuickCallProps) {
   const menuOpen = open && shown;
 
   return (
-    <div className="qc" data-shown={shown} inert={!shown}>
+    <div className="qc" data-shown={shown} inert={!shown} data-track-area="quick-call">
       <ul className="qc__menu" data-open={menuOpen} inert={!menuOpen} id="quick-call-menu">
         <li className="qc__head">{labels.title}</li>
         {shops.map((s) => (

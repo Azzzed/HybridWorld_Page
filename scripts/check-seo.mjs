@@ -12,7 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "..", ".next", "server", "app");
-const SITE = "https://hybridworldinc.com";
+const SITE = "https://www.hybridworldinc.com";
 /** Páginas solo en inglés (textos legales): sin hreflang (src/lib/i18n.ts) */
 const ENGLISH_ONLY = ["/privacy-policy", "/terms"];
 
