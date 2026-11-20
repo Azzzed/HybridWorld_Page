@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, MessageCircle, Phone, X } from "lucide-react";
+import { MapPin, Menu, MessageCircle, Phone, X } from "lucide-react";
 import type { Locale } from "@/lib/business";
 import { splitLocale } from "@/lib/i18n";
 import { Cta } from "../ui/Cta";
@@ -21,6 +21,12 @@ export type HeaderProps = {
   whatsapp: string;
   cta: { href: string; label: string };
   labels: { menuOpen: string; menuClose: string; call: string; whatsapp: string; switchLanguage: string; nav: string };
+  /**
+   * Páginas de sucursal (ruta sin idioma, p. ej. "/locations/mountain-view").
+   * En ellas el teléfono, el WhatsApp y "Free quote" son los de esa sede y,
+   * junto a la marca, sale un chip con la ciudad. El resto de páginas no cambia.
+   */
+  branches?: { path: string; city: string; phone: { display: string; tel: string }; whatsapp: string; chipHref: string }[];
 };
 
 /**
@@ -31,9 +37,15 @@ export type HeaderProps = {
  *   pantalla, para que el primer scroll sea solo el hero.
  * - Escritorio, resto de páginas: fijo arriba.
  */
-export default function SiteHeader({ locale, homeHref, brand, nav, phone, whatsapp, cta, labels }: HeaderProps) {
+export default function SiteHeader({ locale, homeHref, brand, nav, phone: sitePhone, whatsapp: siteWhatsapp, cta: siteCta, labels, branches }: HeaderProps) {
   const pathname = usePathname() || "/";
-  const isHome = splitLocale(pathname).path === "/";
+  const { path } = splitLocale(pathname);
+  const isHome = path === "/";
+  // En la página de una sede, sus datos de contacto
+  const branch = branches?.find((b) => b.path === path);
+  const phone = branch?.phone ?? sitePhone;
+  const whatsapp = branch?.whatsapp ?? siteWhatsapp;
+  const cta = branch ? { ...siteCta, href: branch.whatsapp } : siteCta;
   const [heroGone, setHeroGone] = useState(false);
   const [open, setOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
@@ -66,13 +78,21 @@ export default function SiteHeader({ locale, homeHref, brand, nav, phone, whatsa
     <>
       <header className="nav" data-hidden={isHome && !heroGone && !open}>
         <div className="shell nav__in">
-          <Link href={homeHref} className="nav__brand" aria-label={brand.homeLabel}>
-            <Image src={brand.logoMark} alt="" width={48} height={35} />
-            <span>
-              <strong>Hybrid World</strong>
-              <em>Inc</em>
-            </span>
-          </Link>
+          <div className="nav__start">
+            <Link href={homeHref} className="nav__brand" aria-label={brand.homeLabel}>
+              <Image src={brand.logoMark} alt="" width={48} height={35} />
+              <span>
+                <strong>Hybrid World</strong>
+                <em>Inc</em>
+              </span>
+            </Link>
+            {branch && (
+              <Link href={branch.chipHref} className="nav__branch">
+                <MapPin size={13} strokeWidth={2} aria-hidden="true" />
+                {branch.city}
+              </Link>
+            )}
+          </div>
 
           <nav className="nav__links" aria-label={labels.nav}>
             {nav.map((item) => (

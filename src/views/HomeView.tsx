@@ -6,17 +6,20 @@ import {
   business,
   directionsHref,
   fullAddress,
+  locationPagePath,
   locations,
   photos,
   services,
   shopPhotoKeys,
   whatsappHrefForPhone,
   type Locale,
+  type LocationSlug,
 } from "@/lib/business";
 import { hoursSummary, localePath } from "@/lib/i18n";
 import { homeSchema } from "@/lib/schema";
 import { getReviews } from "@/lib/reviews";
 import { faqItems, getContent } from "@/content";
+import { shopDescription } from "@/content/locations";
 import { VERTICAL_QUERY, WIDE_QUERY } from "@/components/hero-video/sequence";
 import HeroScroll from "@/components/HeroScroll";
 import BrandStrip from "@/components/BrandStrip";
@@ -95,7 +98,15 @@ export default async function HomeView({ locale }: { locale: Locale }) {
 
   return (
     <main id="main">
-      <JsonLd data={homeSchema(locale, c.home.description)} />
+      <JsonLd
+        data={homeSchema(
+          locale,
+          Object.fromEntries(locations.map((l) => [l.slug, shopDescription(l.slug, locale, c.home.description)])) as Record<
+            LocationSlug,
+            string
+          >,
+        )}
+      />
 
       <HeroScroll
         content={c.home.hero}
@@ -167,6 +178,9 @@ export default async function HomeView({ locale }: { locale: Locale }) {
               phone: l.phone,
               whatsappHref: whatsappHrefForPhone(l.phone, `${c.ui.whatsappMessage} ${l.city}`),
               directionsHref: directionsHref(l),
+              page: l.hasPage
+                ? { href: href(locationPagePath(l)), label: c.ui.viewShop.replace("{city}", l.city) }
+                : undefined,
             }))}
             labels={{
               tablist: c.home.locations.eyebrow,

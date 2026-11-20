@@ -215,6 +215,8 @@ const SpecularButton = ({
 
       const update = (now: number) => {
         raf = visible ? requestAnimationFrame(update) : 0;
+        // El brillo gira despacio: a 30 fps se ve igual y la GPU trabaja la mitad
+        if (now - last < 1000 / 30 - 1) return;
         const dt = Math.min((now - last) / 1000, 0.05);
         last = now;
         const p = propsRef.current;

@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
-import { business, fullAddress, locations, whatsappHref, type Locale } from "@/lib/business";
+import { business, fullAddress, locationPagePath, locations, socialLinks, whatsappHref, type Locale } from "@/lib/business";
 import { hoursSummary, localePath } from "@/lib/i18n";
 import { getContent } from "@/content";
 import LangSwitch from "./layout/LangSwitch";
 import LegalLinks from "./LegalLinks";
+import SocialIcon from "./ui/SocialIcon";
 import "./footer.css";
 
 export default function Footer({ locale }: { locale: Locale }) {
@@ -49,18 +50,39 @@ export default function Footer({ locale }: { locale: Locale }) {
         <div className="footer__col">
           <h2>{ui.footer.locations}</h2>
           <ul className="footer__branches">
-            {locations.map((l) => (
-              <li key={l.slug}>
-                <MapPin size={14} />
-                <div>
-                  <Link href={`${href("/locations")}#${l.slug}`}>
-                    <strong>{l.city}</strong>
-                  </Link>
-                  <span>{fullAddress(l)}</span>
-                  <a href={`tel:${l.phone.tel}`}>{l.phone.display}</a>
-                </div>
-              </li>
-            ))}
+            {locations.map((l) => {
+              const socials = socialLinks(l);
+              return (
+                <li key={l.slug}>
+                  <MapPin size={14} />
+                  <div>
+                    {/* La sede con página propia enlaza a ella; las demás, a su sección de /locations */}
+                    <Link href={l.hasPage ? href(locationPagePath(l)) : `${href("/locations")}#${l.slug}`}>
+                      <strong>{l.city}</strong>
+                    </Link>
+                    <span>{fullAddress(l)}</span>
+                    <a href={`tel:${l.phone.tel}`}>{l.phone.display}</a>
+                    {socials.length > 0 && (
+                      <ul className="footer__social">
+                        {socials.map((s) => (
+                          <li key={s.network}>
+                            <a
+                              href={s.url}
+                              target="_blank"
+                              rel="me noopener"
+                              aria-label={ui.socialLabel.replace("{city}", l.city).replace("{network}", s.name)}
+                              title={`${s.name} ${s.handle}`}
+                            >
+                              <SocialIcon network={s.network} size={15} />
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
 

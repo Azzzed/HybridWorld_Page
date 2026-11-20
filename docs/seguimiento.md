@@ -14,12 +14,26 @@ solo en producción: los deploys de preview de Vercel no lo cargan. Las etiqueta
 | `whatsapp_click` | Clic en cualquier enlace `wa.me` | **Principal** |
 | `directions_click` | Clic en "Cómo llegar" (Google Maps) | Secundaria |
 | `email_click` | Clic en el correo | Secundaria |
+| `social_click` | Clic en Instagram, Facebook o TikTok | No |
 
 Cada evento lleva:
 
-- `branch`: `norwalk`, `fullerton`, `mountain-view` o `general`. El teléfono y el WhatsApp generales son los de Norwalk, así que cuentan como `norwalk`.
-- `click_area`: dónde estaba el enlace (`header`, `footer`, `quick-call`, `locations`, `norwalk`…).
+- `branch`: `norwalk`, `fullerton`, `mountain-view` o `general`. El teléfono y el WhatsApp generales son los de Norwalk, así que cuentan como `norwalk`. Las redes cuentan para la sede si son las suyas (`socials` en `src/lib/business.ts`); el Facebook de la marca cuenta como `general`.
+- `network` (solo `social_click`): `instagram`, `facebook` o `tiktok`.
+- `click_area`: dónde estaba el enlace (`header`, `footer`, `quick-call`, `hero`, `branch-bar`, `visit`, `locations`, `norwalk`…).
 - `link_url` y `page_path`.
+
+### Eventos de las páginas de sucursal
+
+Las páginas de sucursal (`/locations/mountain-view`) empujan además un evento de interfaz
+(`src/lib/track-event.ts`), sin conversión:
+
+| Evento | Cuándo | Parámetros |
+|---|---|---|
+| `tab_change` | Cambio de pestaña en batería o motor | `section` (`battery`, `engine`), `tab` (`what`, `repair`), `branch` |
+
+Para verlos en GA4, crea las variables `network`, `section` y `tab`, y un activador
+de evento personalizado con la expresión regular `social_click|tab_change`.
 
 ## Configuración en GTM (una vez)
 

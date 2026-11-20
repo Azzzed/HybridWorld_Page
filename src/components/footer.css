@@ -205,3 +205,36 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Redes de una sede, bajo su teléfono */
+.footer__branches .footer__social {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.footer__branches .footer__social li {
+  display: block;
+  padding: 0;
+  border: 0;
+}
+
+.footer__social a {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  transition: border-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
+}
+
+.footer__social a:hover {
+  border-color: var(--neon-dim);
+  color: var(--neon);
+}
+
+.footer__branches .footer__social svg {
+  margin: 0;
+  color: currentColor;
+}

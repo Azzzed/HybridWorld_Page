@@ -60,10 +60,13 @@ export default function BranchMap({
 }) {
   const bounds = useMemo(() => L.latLngBounds(points.map((p) => p.coords)).pad(0.25), [points]);
   const target = points.find((p) => p.slug === active) ?? points[0];
+  // Con un solo punto (la página de una sede) los límites no tienen tamaño y
+  // Leaflet no sabría qué zoom poner: se centra en él a nivel de calle.
+  const view = points.length === 1 ? { center: points[0].coords, zoom: 15 } : { bounds };
 
   return (
     <MapContainer
-      bounds={bounds}
+      {...view}
       scrollWheelZoom={false}
       zoomControl={false}
       className="map__canvas"

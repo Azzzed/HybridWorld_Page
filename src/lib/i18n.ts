@@ -73,14 +73,53 @@ export function hoursByDay(hours: OpeningHours, locale: Locale) {
   });
 }
 
+/** "Mon–Fri", o "Sat" si es un solo día. */
+const dayRange = (days: Weekday[], locale: Locale) => {
+  const first = DAY_NAMES[locale][days[0]].short;
+  const last = DAY_NAMES[locale][days[days.length - 1]].short;
+  return days.length > 1 ? `${first}–${last}` : first;
+};
+
+/** "16:00" → "4 PM" / "4 p. m."; con minutos, "8:30 AM". */
+export function formatTimeShort(time: string, locale: Locale) {
+  return formatTime(time, locale).replace(":00 ", " ");
+}
+
+/** Cada franja por separado: [{ days: "Mon–Fri", time: "8:00 AM – 4:00 PM" }]. */
+export function hoursSlots(hours: OpeningHours, locale: Locale, short = false) {
+  const fmt = short ? formatTimeShort : formatTime;
+  return hours.map(({ days, opens, closes }) => ({
+    days: dayRange(days, locale),
+    time: `${fmt(opens, locale)} – ${fmt(closes, locale)}`,
+  }));
+}
+
 /** Resumen de una línea: "Mon–Sat · 8:00 AM – 4:00 PM". */
 export function hoursSummary(hours: OpeningHours, locale: Locale) {
-  return hours
-    .map(({ days, opens, closes }) => {
-      const first = DAY_NAMES[locale][days[0]].short;
-      const last = DAY_NAMES[locale][days[days.length - 1]].short;
-      const range = days.length > 1 ? `${first}–${last}` : first;
-      return `${range} · ${formatTime(opens, locale)} – ${formatTime(closes, locale)}`;
-    })
+  return hoursSlots(hours, locale)
+    .map(({ days, time }) => `${days} · ${time}`)
     .join(" / ");
+}
+
+/** Lo más corto, para metadescripciones: "Mon–Fri 8–4". */
+export function hoursCompact(hours: OpeningHours, locale: Locale) {
+  const hour = (time: string) => {
+    const [h, m] = time.split(":").map(Number);
+    return `${h % 12 || 12}${m ? `:${String(m).padStart(2, "0")}` : ""}`;
+  };
+  return hours.map(({ days, opens, closes }) => `${dayRange(days, locale)} ${hour(opens)}–${hour(closes)}`).join(", ");
+}
+
+/** Los días cerrados, agrupados si van seguidos: "Sat–Sun". Null si abre todos los días. */
+export function closedDays(hours: OpeningHours, locale: Locale) {
+  const closed = WEEKDAYS.filter((day) => !hours.some((h) => h.days.includes(day)));
+  if (!closed.length) return null;
+  const runs: Weekday[][] = [];
+  for (const day of closed) {
+    const run = runs[runs.length - 1];
+    const prev = run?.[run.length - 1];
+    if (prev && WEEKDAYS.indexOf(day) === WEEKDAYS.indexOf(prev) + 1) run.push(day);
+    else runs.push([day]);
+  }
+  return runs.map((run) => dayRange(run, locale)).join(", ");
 }

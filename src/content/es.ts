@@ -45,6 +45,8 @@ export const es: SiteContent = {
     readReviews: "Leer reseñas en Google",
     writeReview: "Escribir una reseña",
     whatsappMessage: "Hola, quiero información del servicio:",
+    viewShop: "Ver la sucursal de {city}",
+    socialLabel: "Hybrid World {city} en {network}",
     legal: { privacy: "Política de privacidad", terms: "Términos y condiciones", englishOnly: "(en inglés)" },
     cta: {
       title: "Habla con un especialista en híbridos",

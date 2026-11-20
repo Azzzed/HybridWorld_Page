@@ -15,5 +15,8 @@ export const analyticsEnabled = process.env.VERCEL_ENV
   ? process.env.VERCEL_ENV === "production"
   : process.env.NODE_ENV === "production";
 
-/** Eventos que el sitio empuja al dataLayer. */
-export type ContactEvent = "phone_click" | "whatsapp_click" | "directions_click" | "email_click";
+/** Eventos de contacto que TrackContactClicks empuja al dataLayer. */
+export type ContactEvent = "phone_click" | "whatsapp_click" | "directions_click" | "email_click" | "social_click";
+
+/** Eventos de interfaz de las páginas de sucursal (lib/track-event.ts). */
+export type UiEvent = "tab_change";

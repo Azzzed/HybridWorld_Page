@@ -1,0 +1,590 @@
+/* ==========================================================================
+   Páginas de sucursal (/locations/<slug>).
+   Reutiliza el sistema de la home: tokens, el titular y los botones de
+   hero-scroll.css, .eyebrow/.section-title, .bento-card y el mapa. Aquí solo
+   está lo propio: el hero con su fondo de puntos, la sección de visita y la
+   barra móvil.
+   ========================================================================== */
+
+/* ---------- Hero ---------- */
+.bhero {
+  /* Alto del header fijo */
+  --nav-h: 61px;
+  /* Ancho del bloque de texto, para el tamaño del titular */
+  --copy-w: min(720px, 100vw - 2 * var(--pad));
+
+  position: relative;
+  overflow: clip;
+  padding-top: var(--nav-h);
+  border-bottom: 1px solid var(--line);
+}
+
+/* La superficie de puntos verdes (HeroWaves): plena arriba a la derecha y
+   desvanecida hacia el texto de la izquierda y hacia la sección siguiente */
+.bhero__waves {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(100deg, transparent 10%, rgba(0, 0, 0, 0.3) 38%, #000 70%),
+    linear-gradient(180deg, #000 72%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(100deg, transparent 10%, rgba(0, 0, 0, 0.3) 38%, #000 70%),
+    linear-gradient(180deg, #000 72%, transparent 100%);
+  mask-composite: intersect;
+}
+
+/* Sin WebGL acelerado (HeroWaves): la misma trama de puntos, fija y en CSS,
+   con un brillo en diagonal como el de la superficie animada */
+.bhero__waves--static {
+  background-image:
+    linear-gradient(115deg, transparent 38%, rgba(0, 0, 0, 0.55) 52%, transparent 66%),
+    radial-gradient(circle, rgba(18, 224, 107, 0.55) 0 1.4px, transparent 1.9px);
+  background-size:
+    100% 100%,
+    9px 9px;
+}
+
+.bhero__in {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: min(calc(100svh - var(--nav-h)), 820px);
+  padding-block: clamp(24px, 4vh, 40px) clamp(48px, 8vh, 88px);
+}
+
+.bhero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: var(--copy-w);
+  margin-block: auto;
+  padding-top: 32px;
+}
+
+/* El H1: el antetítulo del hero de la home, con el filete corto delante */
+.hero-scroll__eyebrow.bhero__eyebrow {
+  gap: 14px;
+  font-size: clamp(0.7rem, 0.85vw, 0.8rem);
+  letter-spacing: 0.3em;
+  line-height: 1.5;
+}
+
+.hero-scroll__eyebrow.bhero__eyebrow::after {
+  display: none;
+}
+
+.bhero__eyebrow::before {
+  content: "";
+  flex: none;
+  width: 28px;
+  height: 1px;
+  background: var(--neon);
+  box-shadow: 0 0 8px rgba(18, 224, 107, 0.6);
+}
+
+/* Lo más grande que quepa: hasta 84 px, pero la línea más larga entera en su
+   columna. --title-chars es su número de letras y --title-em lo que mide cada
+   una en este Archivo (medido: hasta 0,89 em por letra, más el relleno de la
+   cursiva) */
+.hero-scroll__title.bhero__title {
+  --title-em: 0.92;
+  font-size: min(5.25rem, 6.4vw, calc(var(--copy-w) / (var(--title-chars, 8) * var(--title-em))));
+  white-space: nowrap;
+}
+
+/* El degradado (background-clip: text) solo pinta dentro de la caja de cada
+   línea y, con line-height 0.9, los acentos de las mayúsculas (HÍBRIDOS,
+   ELÉCTRICOS) quedan fuera: se amplía la caja hacia arriba sin mover el texto */
+.bhero__title .hero-scroll__word {
+  padding-top: 0.24em;
+  margin-top: -0.24em;
+}
+
+.hero-scroll__lede.bhero__lede {
+  max-width: 46ch;
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+}
+
+.bhero__cta {
+  gap: 14px;
+}
+
+.bhero__features {
+  margin: 0;
+}
+
+/* ---------- Hero: tablet y móvil ----------
+   El texto baja al pie del hero y los puntos quedan arriba, desvanecidos
+   hacia abajo, como en la referencia de móvil. */
+@media (max-width: 1020px) {
+  .bhero__waves {
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 22%, rgba(0, 0, 0, 0.35) 42%, rgba(0, 0, 0, 0.12) 56%, transparent 72%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 22%, rgba(0, 0, 0, 0.35) 42%, rgba(0, 0, 0, 0.12) 56%, transparent 72%);
+  }
+
+  .bhero__waves--static {
+    background-size:
+      100% 100%,
+      7px 7px;
+  }
+
+  /* Arriba van los puntos más vivos: las migas no se leerían encima (el
+     JSON-LD de migas sigue en la página) */
+  .bhero__crumbs {
+    display: none;
+  }
+
+  .bhero__in {
+    min-height: min(calc(100svh - var(--nav-h)), 860px);
+    padding-block: 20px 36px;
+  }
+
+  .bhero__copy {
+    margin-top: auto;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .bhero {
+    --nav-h: 59px;
+    --copy-w: calc(100vw - 2 * var(--pad));
+  }
+
+  .bhero__in {
+    min-height: calc(100svh - var(--nav-h));
+    padding-block: 16px 28px;
+  }
+
+  .bhero__copy {
+    gap: 16px;
+    padding-top: 0;
+  }
+
+  .hero-scroll__eyebrow.bhero__eyebrow {
+    gap: 10px;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+  }
+
+  .hero-scroll__title.bhero__title {
+    /* En wdth 118 las letras son más estrechas: hasta 0,84 em */
+    --title-em: 0.87;
+    font-size: min(3.25rem, calc(var(--copy-w) / (var(--title-chars, 8) * var(--title-em))));
+    font-variation-settings: "wdth" 118;
+  }
+
+  .hero-scroll__lede.bhero__lede {
+    font-size: 1rem;
+  }
+
+  /* Dos botones a todo el ancho, de 56 px */
+  .bhero__cta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .bhero__cta > * {
+    justify-content: center;
+    min-height: 56px;
+  }
+
+  .bhero__features {
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 420px) {
+  /* La ventaja de la dirección: sin el número, para que quepan las tres */
+  .bhero__street-number {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  /* Pantallas muy estrechas: las ventajas sin icono, en dos líneas */
+  .bhero__features svg {
+    display: none;
+  }
+}
+
+/* ---------- Secciones ---------- */
+.bsec {
+  border-top: 1px solid var(--line);
+  /* El brillo de las tarjetas del bento sobresale 20 px y los trazos de luz
+     de PartExplorer llenan la sección: nada se sale de ella */
+  overflow: clip;
+}
+
+.bsec__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: clamp(28px, 3.6vw, 48px);
+}
+
+/* El titular de las secciones de pieza vive en una columna de 3/5 */
+.pe__head .services__title {
+  font-size: clamp(2rem, 3.8vw, 3.375rem);
+}
+
+.bsec .see-all {
+  margin-top: clamp(20px, 2.6vw, 32px);
+}
+
+/* ---------- Reseñas ---------- */
+.breviews__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 32px;
+  padding: clamp(20px, 2.6vw, 32px);
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+}
+
+.breviews__score {
+  font-size: 1.02rem;
+}
+
+.breviews__score strong {
+  font-size: 1.6rem;
+}
+
+.breviews__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.breviews .rev-grid {
+  margin-top: 16px;
+}
+
+/* ---------- Preguntas ---------- */
+.bfaq__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: start;
+}
+
+.bfaq__layout .faq__list {
+  margin-top: 0;
+}
+
+.bfaq__layout .services__title {
+  font-size: clamp(2rem, 3.4vw, 3.1rem);
+}
+
+@media (max-width: 960px) {
+  .bfaq__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Visita: datos, redes y mapa ---------- */
+.bvisit__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "head map"
+    "card map"
+    "note map"
+    "actions map"
+    "social map";
+  grid-template-rows: auto auto auto auto 1fr;
+  column-gap: clamp(32px, 4.4vw, 56px);
+  align-items: start;
+}
+
+/* Que ningún bloque fuerce la rejilla más allá de la pantalla */
+.bvisit__layout > * {
+  min-width: 0;
+}
+
+.bvisit__layout > .bsec__head {
+  grid-area: head;
+  margin-bottom: 24px;
+}
+
+.bvisit__card {
+  grid-area: card;
+}
+
+.bvisit__note {
+  grid-area: note;
+  max-width: 62ch;
+  margin-top: 18px;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+.bvisit__actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.bvisit__social {
+  grid-area: social;
+  margin-top: 28px;
+}
+
+.bvisit__map {
+  grid-area: map;
+  align-self: stretch;
+  min-height: 520px;
+}
+
+.bvisit__map .map {
+  height: 100%;
+  min-height: 520px;
+}
+
+/* La .bento-card de la home con los datos de contacto */
+.bento-card.bvisit__card {
+  min-height: 0;
+  padding: clamp(20px, 2.4vw, 28px);
+}
+
+.bvisit__dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+  margin: 0;
+}
+
+.bvisit__dl dt {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-condensed);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--neon);
+}
+
+.bvisit__dl dd {
+  display: flex;
+  flex-direction: column;
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+.bvisit__dl address {
+  font-style: normal;
+}
+
+.bvisit__dl a {
+  transition: color 0.25s var(--ease-out);
+}
+
+.bvisit__dl a:hover {
+  color: var(--neon);
+}
+
+.bvisit__closed {
+  color: var(--text-dim);
+}
+
+.bvisit__follow {
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-condensed);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.bvisit__socials {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bvisit__soc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  transition: border-color 0.25s var(--ease-out);
+}
+
+.bvisit__soc:hover {
+  border-color: rgba(18, 224, 107, 0.6);
+}
+
+.bvisit__soc > svg:first-child {
+  flex: none;
+  color: var(--neon);
+}
+
+.bvisit__soc-name {
+  font-weight: 600;
+}
+
+.bvisit__soc-handle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.bvisit__soc > svg:last-child {
+  flex: none;
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+@media (max-width: 960px) {
+  .bvisit__layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "map"
+      "card"
+      "note"
+      "actions"
+      "social";
+    grid-template-rows: auto;
+  }
+
+  .bvisit__map,
+  .bvisit__map .map {
+    min-height: 320px;
+  }
+
+  .bvisit__map {
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .bvisit__map,
+  .bvisit__map .map {
+    min-height: 220px;
+    height: 220px;
+  }
+
+  .bvisit__dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  /* Llamar y WhatsApp ya están en la barra fija: aquí queda "Cómo llegar" */
+  .bvisit__actions .bvisit__wide-only {
+    display: none;
+  }
+
+  .bvisit__actions > * {
+    flex: 1 1 100%;
+    justify-content: center;
+    min-height: 56px;
+  }
+
+  /* El cierre: los dos botones a todo el ancho */
+  .bcta .cta-band__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .bcta .cta-band__actions > * {
+    justify-content: center;
+    min-height: 56px;
+  }
+}
+
+/* ---------- Cierre ---------- */
+.bcta {
+  padding-bottom: clamp(56px, 8vw, 104px);
+}
+
+.bcta .cta-band {
+  margin-top: 0;
+}
+
+/* ---------- Barra fija de móvil ---------- */
+.bbar {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .bbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--line-2);
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(14px);
+    visibility: hidden;
+    transform: translate3d(0, 100%, 0);
+    transition:
+      transform 0.4s var(--ease-out),
+      visibility 0s 0.4s;
+  }
+
+  .bbar[data-shown="true"] {
+    visibility: visible;
+    transform: none;
+    transition:
+      transform 0.4s var(--ease-out),
+      visibility 0s;
+  }
+
+  .bbar__btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 64px;
+    border-left: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .bbar__btn svg {
+    color: var(--neon);
+  }
+
+  /* Llamar, en el verde del botón principal */
+  .bbar__btn--call {
+    border-left: 0;
+    background: linear-gradient(180deg, #2df17f 0%, var(--neon) 55%, #0fcd62 100%);
+    color: #03130a;
+  }
+
+  .bbar__btn--call svg {
+    color: #03130a;
+  }
+}

@@ -19,16 +19,45 @@ export function ogTitle(locale: Locale, page?: OgPage) {
 const asset = async (path: string, type: string) =>
   `data:${type};base64,${(await readFile(join(process.cwd(), "public", path))).toString("base64")}`;
 
-/** Imagen de 1200×630 para redes y buscadores: foto del equipo, logo y titular. */
-export async function renderOgImage(locale: Locale, title: string) {
-  // El generador (Satori) no lee WebP: va la foto del equipo en JPG
-  const [photo, logo] = await Promise.all([asset("img/shop/taller-01.jpg", "image/jpeg"), asset("img/logo-mark.png", "image/png")]);
+/**
+ * Imagen de 1200×630 para redes y buscadores: foto del equipo, logo y titular.
+ * Abajo, las tres ciudades y el teléfono general. Una página de sucursal pasa
+ * su dirección (`place`), su teléfono y, en vez de la foto del equipo, la de
+ * su pieza (un PNG recortado, que va sobre negro con el brillo verde).
+ */
+export async function renderOgImage(
+  locale: Locale,
+  title: string,
+  branch?: { place: string; phone: string; cutout?: string },
+) {
+  // El generador (Satori) no lee WebP: van JPG y PNG
+  const [photo, logo] = await Promise.all([
+    branch?.cutout ? asset(branch.cutout, "image/png") : asset("img/shop/taller-01.jpg", "image/jpeg"),
+    asset("img/logo-mark.png", "image/png"),
+  ]);
 
   return new ImageResponse(
     (
       <div style={{ display: "flex", width: "100%", height: "100%", background: "#000", color: "#f2f4f5" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photo} alt="" width={520} height={630} style={{ objectFit: "cover", opacity: 0.85 }} />
+        {branch?.cutout ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 520,
+              height: 630,
+              padding: 28,
+              backgroundImage: "radial-gradient(ellipse 60% 40% at 50% 70%, rgba(18, 224, 107, 0.22), rgba(0, 0, 0, 0) 70%)",
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo} alt="" width={464} height={312} style={{ objectFit: "contain" }} />
+          </div>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo} alt="" width={520} height={630} style={{ objectFit: "cover", opacity: 0.85 }} />
+        )}
         <div
           style={{
             display: "flex",
@@ -53,8 +82,8 @@ export async function renderOgImage(locale: Locale, title: string) {
           <div style={{ display: "flex", fontSize: title.length > 40 ? 48 : 58, fontWeight: 800, lineHeight: 1.08 }}>{title}</div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 24, color: "#8b9096" }}>
-            <span style={{ color: "#f2f4f5" }}>{locations.map((l) => l.city).join(" · ")}</span>
-            <span>hybridworldinc.com · {business.phone.display}</span>
+            <span style={{ color: "#f2f4f5" }}>{branch?.place ?? locations.map((l) => l.city).join(" · ")}</span>
+            <span>hybridworldinc.com · {branch?.phone ?? business.phone.display}</span>
           </div>
         </div>
       </div>

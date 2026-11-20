@@ -1,16 +1,19 @@
-import { MessageCircle, Navigation, Phone, Star } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, MessageCircle, Navigation, Phone, Star } from "lucide-react";
 import {
   directionsHref,
   fullAddress,
+  locationPagePath,
   locations,
   whatsappHrefForPhone,
   type Locale,
   type LocationSlug,
 } from "@/lib/business";
-import { hoursByDay } from "@/lib/i18n";
+import { hoursByDay, localePath } from "@/lib/i18n";
 import { locationsSchema } from "@/lib/schema";
 import { getReviews } from "@/lib/reviews";
 import { getContent } from "@/content";
+import { shopDescription } from "@/content/locations";
 import PageIntro from "@/components/page/PageIntro";
 import CtaBand from "@/components/page/CtaBand";
 import LocationsMap from "@/components/locations/LocationsMap";
@@ -23,7 +26,7 @@ export default async function LocationsView({ locale }: { locale: Locale }) {
   const page = c.locationsPage;
   const feed = await getReviews(locale);
   const descriptions = Object.fromEntries(
-    locations.map((l) => [l.slug, page.items[l.slug].paragraphs[0]]),
+    locations.map((l) => [l.slug, shopDescription(l.slug, locale, page.items[l.slug].paragraphs[0])]),
   ) as Record<LocationSlug, string>;
 
   return (
@@ -57,6 +60,11 @@ export default async function LocationsView({ locale }: { locale: Locale }) {
                 <p className="loc-block__nearby">
                   <strong>{page.nearbyTitle}:</strong> {l.nearby.join(", ")}
                 </p>
+                {l.hasPage && (
+                  <Link className="text-link" href={localePath(locale, locationPagePath(l))}>
+                    {c.ui.viewShop.replace("{city}", l.city)} <ArrowRight size={15} aria-hidden="true" />
+                  </Link>
+                )}
                 <div className="loc-block__actions">
                   <Cta href={`tel:${l.phone.tel}`} size="sm">
                     <Phone size={15} /> {l.phone.display}

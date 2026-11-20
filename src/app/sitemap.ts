@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
-import { LOCALES, SITE_URL } from "@/lib/business";
+import { LOCALES, SITE_URL, branchPages, locationPagePath } from "@/lib/business";
 import { ENGLISH_ONLY_PATHS, localePath } from "@/lib/i18n";
 
-/** La home y las páginas del menú, en los dos idiomas y con sus alternativas hreflang. */
-const PATHS = ["/", "/services", "/locations", "/reviews", "/faq"];
+/**
+ * La home, las páginas del menú y las de cada sucursal con página propia, en
+ * los dos idiomas y con sus alternativas hreflang.
+ */
+const PATHS = ["/", "/services", "/locations", "/reviews", "/faq", ...branchPages.map(locationPagePath)];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const abs = (path: string) => new URL(path, SITE_URL).href;

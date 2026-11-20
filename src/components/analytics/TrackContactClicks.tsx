@@ -3,13 +3,23 @@
 import { useEffect } from "react";
 import type { ContactEvent } from "@/lib/analytics";
 
-type Shop = { slug: string; tel: string; whatsapp: string; placeId: string };
+type Shop = { slug: string; tel: string; whatsapp: string; placeId: string; socials: string[] };
 
 declare global {
   interface Window {
     dataLayer?: Record<string, unknown>[];
   }
 }
+
+/** Redes que cuentan como `social_click`, por dominio. */
+const NETWORKS: Record<string, string> = {
+  "instagram.com": "instagram",
+  "facebook.com": "facebook",
+  "tiktok.com": "tiktok",
+};
+
+/** URL sin protocolo, www ni barra final, para comparar enlaces de redes. */
+const normalize = (url: URL) => `${url.hostname.replace(/^www\./, "")}${url.pathname.replace(/\/$/, "")}`.toLowerCase();
 
 /** De dónde vino el clic: header, footer, botón flotante o la sección de la página. */
 function clickArea(link: Element) {
@@ -22,10 +32,11 @@ function clickArea(link: Element) {
  * Escucha todos los clics del documento (un solo listener) y, cuando es un
  * enlace de contacto, empuja un evento al dataLayer de GTM:
  *
- *   phone_click · whatsapp_click · directions_click · email_click
+ *   phone_click · whatsapp_click · directions_click · email_click · social_click
  *
- * con `branch` (la sede, por el teléfono, el número de WhatsApp o el Place ID),
- * `click_area` y `link_url`. En GTM, cada evento es un activador de
+ * con `branch` (la sede, por el teléfono, el número de WhatsApp, el Place ID
+ * o la red de la sede), `click_area` y `link_url`; `social_click` lleva
+ * además `network`. En GTM, cada evento es un activador de
  * "Evento personalizado" para las conversiones de Google Ads y GA4.
  */
 export default function TrackContactClicks({ shops }: { shops: Shop[] }) {
@@ -33,8 +44,11 @@ export default function TrackContactClicks({ shops }: { shops: Shop[] }) {
     const byTel = new Map(shops.map((s) => [s.tel.replace(/\D/g, ""), s.slug]));
     const byWhatsapp = new Map(shops.map((s) => [s.whatsapp, s.slug]));
     const byPlace = new Map(shops.map((s) => [s.placeId, s.slug]));
+    const bySocial = new Map(
+      shops.flatMap((s) => s.socials.map((url) => [normalize(new URL(url)), s.slug] as const)),
+    );
 
-    function classify(href: string): { event: ContactEvent; branch?: string } | null {
+    function classify(href: string): { event: ContactEvent; branch?: string; network?: string } | null {
       if (href.startsWith("tel:")) return { event: "phone_click", branch: byTel.get(href.replace(/\D/g, "")) };
       if (href.startsWith("mailto:")) return { event: "email_click" };
       let url: URL;
@@ -47,6 +61,9 @@ export default function TrackContactClicks({ shops }: { shops: Shop[] }) {
       if (url.hostname.endsWith("google.com") && url.pathname.startsWith("/maps/dir")) {
         return { event: "directions_click", branch: byPlace.get(url.searchParams.get("destination_place_id") ?? "") };
       }
+      const network = NETWORKS[url.hostname.replace(/^www\./, "")];
+      // Las redes de la marca (el Facebook del footer) cuentan como `general`
+      if (network) return { event: "social_click", network, branch: bySocial.get(normalize(url)) };
       return null;
     }
 
@@ -60,6 +77,7 @@ export default function TrackContactClicks({ shops }: { shops: Shop[] }) {
       window.dataLayer.push({
         event: hit.event,
         branch: hit.branch ?? "general",
+        ...(hit.network ? { network: hit.network } : {}),
         click_area: clickArea(link),
         link_url: href,
         page_path: location.pathname,

@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Clock, Headset, MapPin, MessageCircle, Navigation, Phone } from "lucide-react";
+import { ArrowRight, Clock, Headset, MapPin, MessageCircle, Navigation, Phone } from "lucide-react";
 import { Cta, CtaGhost } from "../ui/Cta";
 import type { MapPoint } from "./BranchMap";
 import "../locations.css";
@@ -22,6 +23,8 @@ export type BranchCard = MapPoint & {
   phone: { display: string; tel: string };
   whatsappHref: string;
   directionsHref: string;
+  /** La página propia de la sede, si la tiene */
+  page?: { href: string; label: string };
 };
 
 export type BranchLabels = {
@@ -145,6 +148,12 @@ export default function BranchExplorer({ branches, labels }: { branches: BranchC
                 <Navigation size={15} /> {labels.directions}
               </CtaGhost>
             </div>
+
+            {b.page && (
+              <Link className="text-link branch__page" href={b.page.href}>
+                {b.page.label} <ArrowRight size={15} aria-hidden="true" />
+              </Link>
+            )}
           </div>
         ))}
       </div>

@@ -44,6 +44,8 @@ export const en: SiteContent = {
     readReviews: "Read reviews on Google",
     writeReview: "Write a review",
     whatsappMessage: "Hi Hybrid World, I'd like information about:",
+    viewShop: "View the {city} shop",
+    socialLabel: "Hybrid World {city} on {network}",
     legal: { privacy: "Privacy Policy", terms: "Terms & Conditions", englishOnly: "" },
     cta: {
       title: "Talk to a hybrid specialist",

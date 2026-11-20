@@ -89,6 +89,15 @@ const MON_FRI_8_4: OpeningHours = [
 
 export type LocationSlug = "norwalk" | "fullerton" | "mountain-view";
 
+/** Redes sociales que puede tener una sede, en el orden en que se muestran. */
+export const SOCIAL_NETWORKS = ["instagram", "facebook", "tiktok"] as const;
+export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
+export const SOCIAL_NAMES: Record<SocialNetwork, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  tiktok: "TikTok",
+};
+
 export type Location = {
   slug: LocationSlug;
   city: string;
@@ -114,6 +123,14 @@ export type Location = {
   isNew?: boolean;
   /** Foto de la sede para el JSON-LD (clave de `photos`) */
   photo: PhotoKey;
+  /**
+   * La sede tiene su propia página (/locations/<slug>). Sus textos están en
+   * src/content/locations; el header, el footer, el sitemap y el JSON-LD la
+   * enlazan solos.
+   */
+  hasPage?: boolean;
+  /** Redes propias de la sede. Las de la marca (business.facebookUrl) no van aquí. */
+  socials?: Partial<Record<SocialNetwork, { url: string; handle: string }>>;
 };
 
 export const locations: Location[] = [
@@ -164,8 +181,15 @@ export const locations: Location[] = [
     google: { placeId: "ChIJRwwtlIS7j4ARuyH7Jt4waBE", rating: 4.7, count: 26 },
     nearby: ["Palo Alto", "Los Altos", "Sunnyvale", "Menlo Park", "Santa Clara", "Cupertino"],
     isNew: true,
-    // TODO(cliente): foto propia de la sede de Mountain View.
+    // TODO(cliente): foto propia de la sede de Mountain View. Confirmar si
+    // taller-02.jpg (los Tesla en las rampas) es de esta sede.
     photo: "teslaLifts",
+    hasPage: true,
+    socials: {
+      instagram: { url: "https://www.instagram.com/hybridworld.mountainview/", handle: "@hybridworld.mountainview" },
+      facebook: { url: "https://www.facebook.com/Hwmountainview/", handle: "Hwmountainview" },
+      tiktok: { url: "https://www.tiktok.com/@hwmountainview", handle: "@hwmountainview" },
+    },
   },
 ];
 
@@ -182,6 +206,19 @@ export const googleListingHref = (l: Location) =>
 
 /** Formulario de Google para dejar una reseña a la sede. */
 export const writeReviewHref = (l: Location) => `https://search.google.com/local/writereview?placeid=${l.google.placeId}`;
+
+/** Ruta (sin idioma) de la página propia de una sede. */
+export const locationPagePath = (l: Location) => `/locations/${l.slug}`;
+
+/** Las sedes que tienen página propia. */
+export const branchPages = locations.filter((l) => l.hasPage);
+
+/** Redes de la sede con su nombre, en el orden de SOCIAL_NETWORKS. */
+export const socialLinks = (l: Location) =>
+  SOCIAL_NETWORKS.flatMap((network) => {
+    const link = l.socials?.[network];
+    return link ? [{ network, name: SOCIAL_NAMES[network], ...link }] : [];
+  });
 
 
 /* ------------------------------------------------------------------ */

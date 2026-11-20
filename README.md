@@ -33,6 +33,7 @@ Hace falta Node 20.9 o superior.
 | `/` | La home, con todas las secciones (abajo) |
 | `/services` | Los 6 servicios, cada uno con su sección (`#hybrid-battery`, `#ac`…) |
 | `/locations` | Las 3 sedes (`#norwalk`, `#fullerton`, `#mountain-view`): dirección, teléfono, horario, mapa y nota de Google |
+| `/locations/mountain-view` | Página propia de la sede de Mountain View: hero con la superficie de puntos verdes (PatternWaves de React Bits), batería y motor con la foto en grande bajo las tarjetas y sus pestañas (`PartExplorer`), servicios, reseñas de esa ficha, preguntas, mapa y redes. En ella el header, el botón flotante y la barra fija de móvil usan los datos de la sede |
 | `/reviews` | La nota de Google de cada sede, enlaces para leer y dejar reseñas, y las reseñas recientes |
 | `/faq` | Todas las preguntas frecuentes |
 | `/privacy-policy` · `/terms` | Política de privacidad y Términos y condiciones (incluyen los términos del programa de SMS). Solo en inglés, enlazadas desde el footer y `/faq`; el texto está en `src/content/legal.ts` |
@@ -101,10 +102,17 @@ servidor.
 | `src/lib/business.ts` | **Fuente única**: teléfonos, WhatsApp, sedes (dirección, coordenadas, horario, Place ID de Google), servicios y fotos con su `alt`. Lo usan las páginas, el header, el footer, el mapa, el botón flotante y el JSON-LD. |
 | `src/content/en.ts` · `es.ts` | Todos los textos de cada idioma. Los dos cumplen el mismo tipo (`types.ts`): si falta un texto en uno, TypeScript lo marca. |
 | `src/lib/reviews.ts` | Reseñas de Google (ver abajo). |
+| `src/content/locations/*.ts` | Textos de las páginas de sucursal (hoy, `mountain-view.ts`): hero, pasos, tarjetas y preguntas. Teléfono, horario y ciudades van como `{phone}`, `{hours}` y `{areas}` y salen de `business.ts`. |
 
 Cada página vive en `src/views` (`HomeView`, `ServicesView`, `LocationsView`,
-`ReviewsView`, `FaqView`); las rutas de `src/app/(en)` y `src/app/(es)/es`
+`ReviewsView`, `FaqView`, `BranchView`); las rutas de `src/app/(en)` y `src/app/(es)/es`
 solo les pasan el idioma.
+
+**Página de otra sucursal**: en `business.ts`, `hasPage: true` (y sus redes en
+`socials`, si tiene); sus textos en `src/content/locations/<slug>.ts`,
+registrados en `src/content/locations/index.ts`. La ruta `/locations/<slug>`,
+su imagen Open Graph, el sitemap, los enlaces del footer, de la home y de
+/locations, y el JSON-LD salen solos.
 
 ## Reseñas de Google
 

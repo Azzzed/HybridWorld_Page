@@ -1,4 +1,15 @@
-import { SITE_URL, business, googleListingHref, locations, photos, services, type Locale, type Location } from "./business";
+import {
+  SITE_URL,
+  business,
+  googleListingHref,
+  locationPagePath,
+  locations,
+  photos,
+  services,
+  socialLinks,
+  type Locale,
+  type Location,
+} from "./business";
 import { localePath } from "./i18n";
 
 /**
@@ -16,6 +27,11 @@ const abs = (path: string) => new URL(path, SITE_URL).href;
 const ORG_ID = abs("/#organization");
 const CATALOG_ID = abs("/services#catalog");
 const shopId = (l: Location) => abs(`/locations#${l.slug}`);
+const WEBSITE_ID = abs("/#website");
+
+/** La página de la sede si tiene una; si no, su sección de /locations. */
+const shopUrl = (l: Location, locale: Locale) =>
+  abs(l.hasPage ? localePath(locale, locationPagePath(l)) : `${localePath(locale, "/locations")}#${l.slug}`);
 
 const allCities = () => locations.flatMap((l) => [l.city, ...l.nearby]).map((name) => ({ "@type": "City", name: `${name}, CA` }));
 
@@ -43,7 +59,7 @@ function autoRepair(l: Location, locale: Locale, description: string) {
     name: business.name,
     branchCode: l.slug,
     description,
-    url: abs(`${localePath(locale, "/locations")}#${l.slug}`),
+    url: shopUrl(l, locale),
     image: abs(photos[l.photo].src),
     logo: abs(business.logo),
     telephone: l.phone.tel,
@@ -59,7 +75,8 @@ function autoRepair(l: Location, locale: Locale, description: string) {
     },
     geo: { "@type": "GeoCoordinates", latitude: l.geo.lat, longitude: l.geo.lng },
     hasMap: googleListingHref(l),
-    sameAs: [googleListingHref(l)],
+    // La ficha de Google y las redes propias de la sede
+    sameAs: [googleListingHref(l), ...socialLinks(l).map((s) => s.url)],
     openingHoursSpecification: l.hours.map((h) => ({
       "@type": "OpeningHoursSpecification",
       dayOfWeek: h.days,
@@ -96,21 +113,25 @@ function catalog(locale: Locale) {
   };
 }
 
+function website(locale: Locale) {
+  return {
+    "@type": "WebSite",
+    "@id": WEBSITE_ID,
+    url: abs(localePath(locale, "/")),
+    name: business.name,
+    inLanguage: locale,
+    publisher: { "@id": ORG_ID },
+  };
+}
+
 /** Home: la empresa, el sitio, sus tres talleres y sus servicios. */
-export function homeSchema(locale: Locale, shopDescription: string) {
+export function homeSchema(locale: Locale, descriptions: Record<Location["slug"], string>) {
   return {
     "@context": "https://schema.org",
     "@graph": [
       organization(locale),
-      {
-        "@type": "WebSite",
-        "@id": abs("/#website"),
-        url: abs(localePath(locale, "/")),
-        name: business.name,
-        inLanguage: locale,
-        publisher: { "@id": ORG_ID },
-      },
-      ...locations.map((l) => autoRepair(l, locale, shopDescription)),
+      website(locale),
+      ...locations.map((l) => autoRepair(l, locale, descriptions[l.slug])),
       catalog(locale),
     ],
   };
@@ -121,6 +142,48 @@ export function locationsSchema(locale: Locale, descriptions: Record<Location["s
   return {
     "@context": "https://schema.org",
     "@graph": [organization(locale), ...locations.map((l) => autoRepair(l, locale, descriptions[l.slug]))],
+  };
+}
+
+/**
+ * Página de una sede (/locations/<slug>): la empresa, el sitio, la sede, la
+ * página (WebPage, que trata de la sede) y sus migas. Cada @id una sola vez.
+ */
+export function branchPageSchema(
+  l: Location,
+  locale: Locale,
+  page: { title: string; description: string; shopDescription: string; crumbs: Crumb[] },
+) {
+  const url = abs(localePath(locale, locationPagePath(l)));
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      organization(locale),
+      website(locale),
+      autoRepair(l, locale, page.shopDescription),
+      {
+        "@type": "WebPage",
+        "@id": `${url}#webpage`,
+        url,
+        name: page.title,
+        description: page.description,
+        inLanguage: locale,
+        isPartOf: { "@id": WEBSITE_ID },
+        about: { "@id": shopId(l) },
+        mainEntity: { "@id": shopId(l) },
+        breadcrumb: { "@id": `${url}#breadcrumb` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
+        itemListElement: page.crumbs.map((c, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: c.name,
+          item: abs(localePath(locale, c.path)),
+        })),
+      },
+    ],
   };
 }
 

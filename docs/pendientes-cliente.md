@@ -15,6 +15,19 @@ dato o al texto que afecta.
 - [ ] Datos viejos que pueden seguir en directorios (Yelp, Facebook, Bing, Apple, BBB…): teléfonos **(714) 880-4499** y **(562) 888-9770** y el correo **hybridworld2022@gmail.com** (salían en el sitio de 2022). Buscarlos y cambiarlos por los actuales.
 - [ ] Mountain View: la ficha dice "2362 Old Middlefield Way **B2**"; el sitio ahora también lo dice. Confirmar el número de local.
 
+## Página de Mountain View (`/locations/mountain-view`)
+
+Los textos están en `src/content/locations/mountain-view.ts`; lo que falta está marcado con `TODO(cliente)` o `TODO(técnico)`.
+
+- [ ] **Revisión técnica** de los textos de batería y motor: 28 módulos de 7.2 V (201.6 V), código P0A80 y la falla EGR → junta de cabeza del 2ZR-FXE.
+- [ ] **Fotos del taller** (carrusel): confirmar en qué sede se tomó cada una y mandar más de Mountain View (Instagram, Facebook o la ficha de Google). Hoy salen 5 fotos enviadas por el cliente y 6 de la ficha de Google de Hybrid World.
+- [ ] **Tiempo** de una reparación de batería, para la pregunta "¿Cuánto tarda…?" (hoy dice que se informa después del escaneo).
+- [ ] **Estacionamiento y referencias cercanas**: falta la pregunta "¿Dónde me estaciono?" y el párrafo propio de la sede (referencias, estacionamiento, equipo). No se publican hasta tener el texto real.
+- [ ] **Foto propia** de la sede: confirmar si `taller-02.jpg` (los Tesla en las rampas) es de Mountain View. Es la imagen de la sede en el JSON-LD; en la página no se muestra hasta confirmarlo.
+- [ ] **Reseñas**: con la API key de Places, la página muestra las reseñas reales de la ficha de Mountain View; sin ella, solo la nota y el total (4.7 · 26) con los enlaces para leer y escribir reseñas.
+- [x] **Redes** de la sede: Instagram @hybridworld.mountainview, Facebook /Hwmountainview y TikTok @hwmountainview (en `business.ts`; salen en la página, en el footer y en el `sameAs` del JSON-LD).
+- [x] **Garantías** (19/11/2026): 30 días en reparaciones de misfire; 3 meses en piezas (bombas de agua, luces, pantallas, radios, radiadores…), junta de cabeza y reparación de batería híbrida; 6 meses en motores reconstruidos y baterías reconstruidas completas; 1 año en "pilas de 12v completas" y en baterías reconstruidas con celdas de 4.ª generación. En la página van las de batería, motor, junta, bombas y radiadores, y misfire. Pendiente: confirmar qué significa "pilas de 12v completas" (¿baterías auxiliares de 12 V?) y si hay condiciones (millas, uso).
+
 ## Datos del negocio (`src/lib/business.ts`)
 
 - [x] Teléfonos de las sedes: Norwalk (657) 267-9029 · Fullerton (562) 503-3183 · Mountain View (408) 449-1311 (confirmados).
@@ -30,7 +43,7 @@ dato o al texto que afecta.
 
 ## Contenido
 
-- [ ] Garantía: plazo (meses/millas) y condiciones por servicio. Se quitó "Reparación garantizada / Guaranteed repairs" del hero porque, sin términos publicados, Google Ads puede rechazar la página; con los términos, se publica una página /warranty y se vuelve a poner.
+- [ ] Garantía: los plazos ya están (ver Mountain View, arriba); faltan las condiciones por servicio (millas, uso). Se quitó "Reparación garantizada / Guaranteed repairs" del hero porque, sin términos publicados, Google Ads puede rechazar la página; con los términos, se publica una página /warranty y se vuelve a poner.
 - [x] Se quitó la cifra "hasta 90% del rendimiento a ~1/4 del costo" (no había con qué respaldarla). Si el cliente tiene datos, se puede volver a poner.
 - [ ] Baterías: ¿instalan también baterías nuevas? ¿cuánto tarda el trabajo?
 - [ ] Qué incluye la "revisión multipunto" del cambio de aceite.

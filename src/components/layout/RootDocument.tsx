@@ -1,5 +1,15 @@
 import type { ReactNode } from "react";
-import { business, locations, phoneToWhatsAppNumber, whatsappHref, type Locale } from "@/lib/business";
+import {
+  branchPages,
+  business,
+  locationPagePath,
+  locations,
+  phoneToWhatsAppNumber,
+  socialLinks,
+  whatsappHref,
+  whatsappHrefForPhone,
+  type Locale,
+} from "@/lib/business";
 import { analyticsEnabled } from "@/lib/analytics";
 import { localePath } from "@/lib/i18n";
 import { archivo, athiti } from "@/lib/fonts";
@@ -27,6 +37,14 @@ export default function RootDocument({ locale, children }: { locale: Locale; chi
     { href: href("/reviews"), label: ui.nav.reviews },
     { href: href("/faq"), label: ui.nav.faq },
   ];
+  // Las sedes con página propia: en ella, el header y el botón flotante usan sus datos
+  const branches = branchPages.map((l) => ({
+    path: locationPagePath(l),
+    slug: l.slug,
+    city: l.city,
+    phone: l.phone,
+    whatsapp: whatsappHrefForPhone(l.phone, `${ui.whatsappMessage} ${l.city}`),
+  }));
 
   return (
     <html lang={locale} className={`${archivo.variable} ${athiti.variable}`}>
@@ -52,6 +70,7 @@ export default function RootDocument({ locale, children }: { locale: Locale; chi
             switchLanguage: ui.switchLanguage,
             nav: ui.mainNav,
           }}
+          branches={branches.map(({ path, city, phone, whatsapp }) => ({ path, city, phone, whatsapp, chipHref: href("/locations") }))}
         />
         {children}
         <Footer locale={locale} />
@@ -64,6 +83,12 @@ export default function RootDocument({ locale, children }: { locale: Locale; chi
             title: ui.quickContactTitle,
             whatsapp: `${ui.whatsapp} ${business.whatsapp.display}`,
           }}
+          branches={branches.map(({ path, slug, phone, whatsapp }) => ({
+            path,
+            slug,
+            whatsapp,
+            whatsappLabel: `${ui.whatsapp} ${phone.display}`,
+          }))}
         />
         <RevealObserver />
         {analyticsEnabled && (
@@ -76,6 +101,7 @@ export default function RootDocument({ locale, children }: { locale: Locale; chi
                 tel: l.phone.tel,
                 whatsapp: phoneToWhatsAppNumber(l.phone),
                 placeId: l.google.placeId,
+                socials: socialLinks(l).map((s) => s.url),
               }))}
             />
           </>

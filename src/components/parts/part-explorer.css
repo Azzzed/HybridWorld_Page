@@ -1,0 +1,535 @@
+/* ==========================================================================
+   PartExplorer: la pieza en grande, sin marco, como un objeto que flota
+   debajo de las tarjetas, y el texto con dos pestañas. Mismo lenguaje que el
+   resto del sitio: negro mate, el verde del logo, esquinas rectas y las
+   tarjetas de magic-bento.css (.bento-card).
+
+   Escritorio: el texto en 7/12 de la rejilla (a la derecha con .pe--left) y la
+   foto metida bajo el borde de las tarjetas.
+   ≤ 960 px: encabezado, foto (entera y centrada) y pestañas, en ese orden.
+   ========================================================================== */
+
+.pe {
+  /* Ancho máximo de la foto: menos que la foto original (1028 px), para que
+     no se estire y pierda nitidez */
+  --vis-max: min(52vw, 760px);
+  /* Alto máximo de la foto: limita las verticales (el motor) */
+  --vis-h: 860px;
+  /* Cuánto se mete la foto por debajo de la columna de las tarjetas: poco,
+     como en el boceto, para que la pieza se vea casi entera */
+  --overlap: 70px;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-content: center;
+  row-gap: 26px;
+  min-height: clamp(560px, 48vw, 760px);
+}
+
+/* En espejo (el motor, a la izquierda). La pieza es alta y lo más ancho es su
+   parte de arriba: se queda junto al titular sin taparlo, un poco más abajo,
+   y son las tarjetas las que se alargan hacia ella para quedar encima */
+.pe--left {
+  --vis-max: min(64vw, 1100px);
+  --vis-h: 760px;
+  --overlap: 20px;
+
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+}
+
+.pe__head,
+.pe__body {
+  position: relative;
+  z-index: 1;
+  grid-column: 1;
+  min-width: 0;
+}
+
+.pe--left .pe__head,
+.pe--left .pe__body {
+  grid-column: 2;
+}
+
+.pe__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  /* Si el titular pasa por encima de la foto, que se siga leyendo */
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.85);
+}
+
+.pe__body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ---------- La pieza ---------- */
+/* Empieza --overlap antes de que acabe la columna del texto (7/12) y crece
+   hacia fuera: si es ancha, se sale por el borde de la pantalla */
+.pe__visual {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: calc(100% * 7 / 12 - var(--overlap));
+  width: min(var(--vis-max), calc(var(--vis-h) * var(--ar)));
+  aspect-ratio: var(--ar);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.pe--left .pe__visual {
+  top: 58%;
+  left: auto;
+  right: calc(100% * 7 / 12 - var(--overlap));
+}
+
+.pe--left .pe__grid {
+  margin-left: -190px;
+}
+
+.pe__img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* El filo claro la despega del negro */
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.22));
+  /* Su reflejo en un piso brillante (Chrome, Edge y Safari; en Firefox, sin
+     reflejo, queda la sombra) */
+  -webkit-box-reflect: below 0 linear-gradient(transparent 68%, rgba(255, 255, 255, 0.2));
+}
+
+/* El brillo verde del piso, detrás y debajo de la pieza */
+.pe__glow {
+  position: absolute;
+  z-index: 0;
+  inset: 22% -6% -16%;
+  background: radial-gradient(ellipse 50% 44% at 50% 68%, rgba(18, 224, 107, 0.22), rgba(18, 224, 107, 0) 72%);
+  filter: blur(14px);
+}
+
+/* La sombra en el piso: la pieza "flota" sobre ella */
+.pe__shadow {
+  position: absolute;
+  z-index: 1;
+  left: 12%;
+  right: 10%;
+  bottom: -6%;
+  height: 16%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.92), transparent);
+  filter: blur(6px);
+}
+
+/* ---------- Fondo: brillo verde y trazos de luz ---------- */
+.pe__streaks {
+  /* El relleno vertical de .section: los trazos ocupan toda la sección */
+  --sec-pad: clamp(64px, 9vw, 120px);
+
+  position: absolute;
+  z-index: 0;
+  top: calc(-1 * var(--sec-pad));
+  left: calc((100% - 100vw) / 2);
+  width: 100vw;
+  height: calc(100% + 2 * var(--sec-pad));
+  overflow: visible;
+  pointer-events: none;
+  background: radial-gradient(ellipse 55% 60% at 72% 48%, rgba(18, 224, 107, 0.09), transparent 72%);
+}
+
+.pe--left .pe__streaks {
+  background: radial-gradient(ellipse 55% 60% at 28% 52%, rgba(18, 224, 107, 0.09), transparent 72%);
+}
+
+/* El motor, en espejo: los trazos también */
+.pe--left .pe__streaks g {
+  transform: scaleX(-1);
+  transform-origin: 800px 450px;
+}
+
+.pe__streaks path {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Tira LED: un resplandor ancho y difuso que tiñe el negro, un halo verde y
+   un filamento casi blanco en el centro */
+.pe__led--glow {
+  stroke: var(--neon);
+  opacity: 0.22;
+  filter: blur(22px);
+}
+
+.pe__led--glow path {
+  stroke-width: 46px;
+}
+
+.pe__led--halo {
+  stroke: var(--neon);
+  opacity: 0.55;
+  filter: blur(5px);
+}
+
+.pe__led--halo path {
+  stroke-width: 9px;
+}
+
+.pe__led--core {
+  filter: drop-shadow(0 0 3px rgba(200, 255, 224, 0.9)) drop-shadow(0 0 10px rgba(18, 224, 107, 0.85));
+}
+
+.pe__led--core path {
+  stroke-width: 2.2px;
+}
+
+/* La segunda línea de cada par, más fina y tenue */
+.pe__led path:nth-child(even) {
+  opacity: 0.5;
+}
+
+.pe__led--core path:nth-child(even) {
+  stroke-width: 1.2px;
+}
+
+/* ---------- Pestañas ---------- */
+.pe__tabs {
+  display: flex;
+  gap: clamp(20px, 2.6vw, 34px);
+  border-bottom: 1px solid var(--line);
+}
+
+.pe__tab {
+  position: relative;
+  min-height: 48px;
+  padding: 14px 2px;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: color 0.25s var(--ease-out);
+}
+
+/* Subrayado neón de 2 px en la activa */
+.pe__tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--neon);
+  box-shadow: 0 0 10px rgba(18, 224, 107, 0.6);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.pe__tab:hover {
+  color: var(--text);
+}
+
+.pe__tab[aria-selected="true"] {
+  color: var(--text);
+  text-shadow: 0 0 18px rgba(18, 224, 107, 0.35);
+}
+
+.pe__tab[aria-selected="true"]::after {
+  transform: none;
+}
+
+.pe__tab-short {
+  display: none;
+}
+
+/* ---------- Paneles ---------- */
+.pe__panel:focus-visible {
+  outline-offset: 6px;
+}
+
+.pe__intro {
+  max-width: 58ch;
+  margin-bottom: 20px;
+  font-size: clamp(1rem, 1.1vw, 1.08rem);
+  color: rgba(232, 237, 235, 0.82);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9);
+}
+
+.pe__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* La .bento-card de la home, en compacto: cristal oscuro teñido de verde,
+   con el borde verde encendido; la pieza se ve por debajo */
+.bento-card.pe__card {
+  justify-content: flex-start;
+  gap: 6px;
+  min-height: 0;
+  padding: 20px;
+  border-color: rgba(18, 224, 107, 0.32);
+  background: linear-gradient(155deg, rgba(18, 224, 107, 0.11) 0%, rgba(4, 12, 8, 0.86) 42%, rgba(3, 8, 5, 0.92) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.pe__step {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-condensed);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--neon);
+}
+
+.pe__card-title {
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: #fff;
+}
+
+.pe__card-text {
+  font-size: 0.94rem;
+  line-height: 1.5;
+  color: rgba(232, 237, 235, 0.7);
+}
+
+.bento-card.pe__card--icon {
+  flex-direction: row;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+}
+
+/* El icono, dentro de un anillo verde con brillo */
+.pe__ring {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border: 1.5px solid rgba(18, 224, 107, 0.7);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, rgba(18, 224, 107, 0.16), rgba(0, 0, 0, 0.4) 70%);
+  box-shadow:
+    0 0 14px rgba(18, 224, 107, 0.28),
+    inset 0 0 12px rgba(18, 224, 107, 0.18);
+}
+
+.pe__card--icon > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pe__card-icon {
+  flex: none;
+  color: var(--neon);
+  filter: drop-shadow(0 0 6px rgba(18, 224, 107, 0.5));
+}
+
+.pe__warranty {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  max-width: 70ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9);
+}
+
+.pe__warranty svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--neon);
+}
+
+/* ---------- Cierre: cotización y sellos ---------- */
+.pe__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 28px;
+  margin-top: 4px;
+}
+
+.pe__cta-btn {
+  padding: 16px 28px;
+  font-size: 1.02rem;
+}
+
+/* Los sellos: la fila de ventajas del hero (con su separador entre los dos) */
+.hero-scroll__features.pe__badges {
+  margin: 0;
+}
+
+.pe__badges li {
+  font-size: 0.95rem;
+}
+
+
+/* ---------- Una columna: la foto entre el encabezado y las pestañas ---------- */
+@media (max-width: 960px) {
+  .pe {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-height: 0;
+  }
+
+  /* La pieza entera y centrada, como mucho del ancho del texto */
+  .pe__visual,
+  .pe--left .pe__visual {
+    --vis-h: 480px;
+
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    transform: none;
+    width: min(100%, 560px, calc(var(--vis-h) * var(--ar)));
+    align-self: center;
+    margin: 8px 0 12px;
+  }
+
+  .pe--left .pe__grid {
+    margin-left: 0;
+  }
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 720px) {
+  .pe__visual {
+    --vis-h: 340px;
+  }
+
+  /* El motor es alto: un poco más de alto para que no quede chico */
+  .pe--left .pe__visual {
+    --vis-h: 380px;
+  }
+
+  /* Pestañas a partes iguales, con la etiqueta corta */
+  .pe__tabs {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .pe__tab {
+    padding: 12px 4px;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  .pe__tab-long {
+    display: none;
+  }
+
+  .pe__tab-short {
+    display: inline;
+  }
+
+  .pe__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* La batería (foto a la derecha) va arriba, junto al titular, como en la
+     referencia de móvil: titular a la izquierda y pieza saliendo por el borde */
+  .pe--right {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 18px;
+  }
+
+  /* Todo en la única columna: el titular y la foto comparten la primera fila */
+  .pe--right .pe__head {
+    grid-row: 1;
+    grid-column: 1;
+    max-width: 62%;
+  }
+
+  .pe--right .pe__head .services__title {
+    font-size: clamp(1.9rem, 8.6vw, 2.4rem);
+  }
+
+  .pe--right .pe__visual {
+    --vis-h: 260px;
+
+    grid-row: 1;
+    grid-column: 1;
+    align-self: end;
+    justify-self: end;
+    width: 64vw;
+    margin: 0 calc(-1 * var(--pad)) -14px 0;
+  }
+
+  .pe--right .pe__body {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  /* Las tiras LED, solo el par del lado de la foto: la zona de los trazos
+     se limita a la parte alta de la sección para que no se estiren a lo largo
+     de toda la pantalla, y las de la otra esquina y las de abajo se quitan
+     para no cruzar el titular ni las tarjetas */
+  .pe__streaks {
+    height: 620px;
+  }
+
+  .pe__led path:nth-child(-n + 4) {
+    display: none;
+  }
+
+  /* El motor va centrado bajo el titular: sin espejo, las tiras quedan en la
+     esquina derecha, donde no hay texto */
+  .pe--left .pe__streaks g {
+    transform: none;
+  }
+
+  .pe__led--glow path {
+    stroke-width: 30px;
+  }
+
+  .pe__card-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .pe__ring {
+    width: 50px;
+    height: 50px;
+  }
+
+  /* Cierre centrado: el botón y, debajo, los dos sellos */
+  .pe__cta {
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .pe__cta-btn {
+    width: min(100%, 360px);
+    justify-content: center;
+    min-height: 56px;
+  }
+
+}

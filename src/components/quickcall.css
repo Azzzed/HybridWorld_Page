@@ -170,3 +170,10 @@
 .qc__wa:hover svg {
   color: var(--neon) !important;
 }
+
+/* Páginas de sucursal: en móvil manda su barra de contacto (BranchCallBar) */
+@media (max-width: 720px) {
+  .qc[data-branch-page="true"] {
+    display: none;
+  }
+}

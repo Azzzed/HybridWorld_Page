@@ -10,6 +10,7 @@
     "check:seo": "node scripts/check-seo.mjs"
   },
   "dependencies": {
+    "@use-gesture/react": "^10.3.1",
     "gsap": "^3.15.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.47.0",

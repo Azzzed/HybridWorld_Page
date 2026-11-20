@@ -12,7 +12,9 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
-    qualities: [70, 75],
+    // 90: las fotos de producto de las páginas de sucursal (PartExplorer), con
+    // mucho detalle fino que a 75 se nota emborronado
+    qualities: [70, 75, 90],
   },
   /**
    * URLs del sitio anterior (GoDaddy) a su equivalente en el nuevo, con 301
