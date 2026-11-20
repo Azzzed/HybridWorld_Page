@@ -13,6 +13,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Renderer, Program, Mesh, Triangle, Plane, Texture, RenderTarget } from 'ogl';
 
 import './FlexCarousel.css';
+import { renderPaused } from '@/lib/render-gate';
 
 export type FlexCarouselItem = { src: string; alt?: string; title?: string; subtitle?: string };
 type Curl = 'twist' | 'rise' | 'fall';
@@ -749,6 +750,11 @@ const FlexCarousel = ({
 
     const frame = (now: number) => {
       raf = 0;
+      // Tras pulsar un enlace o un botón, el clic pasa primero (lib/render-gate)
+      if (renderPaused() && !pointer.down) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       if (resizePending) {
         resizePending = false;
         applyResize();

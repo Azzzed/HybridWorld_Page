@@ -35,7 +35,7 @@ type Mode = "strip" | "dome" | "flex";
  * Si la pantalla cambia de tipo (girar una tablet, redimensionar), React
  * desmonta el efecto anterior antes de montar el nuevo: nunca corren los dos.
  */
-export default function ShopCarousel({ photos, label }: { photos: ShopPhoto[]; label: string }) {
+export default function ShopCarousel({ photos, label, closeLabel }: { photos: ShopPhoto[]; label: string; closeLabel: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   const [mode, setMode] = useState<Mode>("strip");
@@ -99,6 +99,7 @@ export default function ShopCarousel({ photos, label }: { photos: ShopPhoto[]; l
             openedImageHeight="min(117vw, 506px)"
             grayscale={false}
             touchAction="pan-y"
+            closeLabel={closeLabel}
           />
         </div>
       )}

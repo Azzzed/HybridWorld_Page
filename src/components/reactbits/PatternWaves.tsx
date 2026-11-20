@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, type CSSProperties } from 'react';
 import { Renderer, Program, Mesh, Triangle, RenderTarget, Texture } from 'ogl';
 
 import './PatternWaves.css';
+import { renderPaused } from '@/lib/render-gate';
 
 export type PatternWavesPreset = 'silk' | 'ocean' | 'pond' | 'lines' | 'terminal' | 'mesh';
 export type PatternWavesPattern = 'dot' | 'square' | 'plus' | 'line' | 'glyph';
@@ -775,6 +776,11 @@ const PatternWaves = ({
 
     const frame = (now: number) => {
       raf = 0;
+      // Tras pulsar un enlace o un botón, el clic pasa primero (lib/render-gate)
+      if (renderPaused()) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       // Con tope de fps, los fotogramas de más solo piden el siguiente
       const fpsCap = settingsRef.current?.maxFps ?? 0;
       if (fpsCap > 0 && !resizePending && now - last < 1000 / fpsCap - 1) {

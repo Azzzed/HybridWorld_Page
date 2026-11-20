@@ -4,6 +4,7 @@ import { useRef, useEffect, type CSSProperties, type ReactNode, type MouseEventH
 import { SPECULAR_FRAG, SPECULAR_PAD, SPECULAR_VERT } from './specular-shader';
 import { layoutSize } from '../layout-size';
 import './SpecularButton.css';
+import { renderPaused } from '@/lib/render-gate';
 
 type ButtonSize = 'sm' | 'md' | 'lg';
 
@@ -217,6 +218,8 @@ const SpecularButton = ({
         raf = visible ? requestAnimationFrame(update) : 0;
         // El brillo gira despacio: a 30 fps se ve igual y la GPU trabaja la mitad
         if (now - last < 1000 / 30 - 1) return;
+        // Tras pulsar un enlace o un botón, el clic pasa primero (lib/render-gate)
+        if (renderPaused()) return;
         const dt = Math.min((now - last) / 1000, 0.05);
         last = now;
         const p = propsRef.current;

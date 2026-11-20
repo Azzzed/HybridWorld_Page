@@ -120,6 +120,7 @@ const en: BranchPageContent = {
     title: ["Real work,", "from our shop."],
     lede: "Rebuilt engines, head gasket jobs and the bays where we work on Prius, Lexus, Camry and Tesla. Drag the photos or click one to see it bigger.",
     label: "Photos from the shop",
+    close: "Close photo",
     // TODO(cliente): confirmar en qué sede se tomó cada foto; hoy salen sin decirlo.
     items: [
       { ...SHOP.bays, title: "Service bays", alt: "Service bays seen from above: two Teslas on lifts, a blue Prius c with the hood open and a red SUV with an engine crane" },
@@ -280,6 +281,7 @@ const es: BranchPageContent = {
     title: ["Trabajo real,", "de nuestro taller."],
     lede: "Motores reconstruidos, juntas de cabeza y las bahías donde trabajamos en Prius, Lexus, Camry y Tesla. Arrastra las fotos o toca una para verla en grande.",
     label: "Fotos del taller",
+    close: "Cerrar foto",
     // TODO(cliente): confirmar en qué sede se tomó cada foto; hoy salen sin decirlo.
     items: [
       { ...SHOP.bays, title: "Bahías de servicio", alt: "Bahías de servicio vistas desde arriba: dos Tesla en rampas, un Prius c azul con el cofre abierto y una camioneta roja con la grúa de motor" },

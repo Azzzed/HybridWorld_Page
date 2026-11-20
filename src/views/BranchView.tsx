@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ArrowUpRight, MessageCircle, Navigation, Phone } from "lucide-react";
+import { ArrowUpRight, MessageCircle, Navigation, Phone } from "lucide-react";
 import {
   directionsHref,
   locationPagePath,
@@ -154,12 +153,7 @@ export default async function BranchView({ locale, slug }: { locale: Locale; slu
       <section className="section bsec" id="shop" aria-labelledby="shop-title">
         <div className="shell">
           <SectionHead id="shop-title" eyebrow={b.gallery.eyebrow} title={b.gallery.title} lede={b.gallery.lede} />
-          <ShopCarousel photos={shopPhotos} label={b.gallery.label} />
-          <p className="see-all">
-            <Link className="text-link" href={href("/services")}>
-              {c.ui.seeAll.services} <ArrowRight size={15} aria-hidden="true" />
-            </Link>
-          </p>
+          <ShopCarousel photos={shopPhotos} label={b.gallery.label} closeLabel={b.gallery.close} />
         </div>
       </section>
 

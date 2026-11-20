@@ -189,6 +189,8 @@ export type BranchPageContent = PageMeta & {
     title: [string, string];
     lede: string;
     label: string;
+    /** Botón que cierra la foto abierta en la galería de móvil */
+    close: string;
     items: GalleryItem[];
   };
   reviews: { eyebrow: string; title: [string, string] };

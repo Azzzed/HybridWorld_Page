@@ -104,6 +104,8 @@ export interface DomeGalleryProps {
   grayscale?: boolean;
   /** touch-action del área de arrastre: "pan-y" deja hacer scroll vertical de la página */
   touchAction?: CSSProperties['touchAction'];
+  /** Texto (aria-label) del botón que cierra la foto abierta. Añadido para el sitio. */
+  closeLabel?: string;
 }
 
 export default function DomeGallery({
@@ -124,7 +126,8 @@ export default function DomeGallery({
   imageBorderRadius = '30px',
   openedImageBorderRadius = '30px',
   grayscale = true,
-  touchAction = 'none'
+  touchAction = 'none',
+  closeLabel = 'Close photo'
 }: DomeGalleryProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -144,6 +147,8 @@ export default function DomeGallery({
   const openingRef = useRef(false);
   const openStartedAtRef = useRef(0);
   const lastDragEndAt = useRef(0);
+  /** El cierre de la foto abierta (lo define el efecto del velo); lo usa también el botón de cerrar */
+  const closeRef = useRef<() => void>(() => {});
 
   const scrollLockedRef = useRef(false);
   const lockScroll = useCallback(() => {
@@ -439,6 +444,7 @@ export default function DomeGallery({
       };
       animatingOverlay.addEventListener('transitionend', cleanup, { once: true });
     };
+    closeRef.current = close;
     scrim.addEventListener('click', close);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close();
@@ -657,6 +663,12 @@ export default function DomeGallery({
         <div className="viewer" ref={viewerRef}>
           <div ref={scrimRef} className="scrim" />
           <div ref={frameRef} className="frame" />
+          {/* Solo se ve con una foto abierta (CSS: [data-enlarging]) */}
+          <button type="button" className="dg-close" aria-label={closeLabel} onClick={() => closeRef.current()}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </main>
     </div>
