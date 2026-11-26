@@ -4,6 +4,10 @@
  * PatternWaves de React Bits (reactbits.dev), pasado a TypeScript. Una
  * superficie en movimiento dibujada con marcas (puntos, cuadros, líneas…) en
  * WebGL2 con ogl. Sin WebGL2 no dibuja nada y deja ver el fondo.
+ *
+ * Cambio respecto al original: con `interactive={false}` (al montar) no escucha
+ * el puntero ni reserva las texturas de la onda del cursor; en el original solo
+ * dejaba de dibujar la onda.
  */
 
 import { useEffect, useMemo, useRef, type CSSProperties } from 'react';
@@ -580,6 +584,8 @@ const PatternWaves = ({
     const geometry = new Triangle(gl);
     const blank = new Texture(gl);
     const floatTargets = !!gl.getExtension('EXT_color_buffer_float');
+    // Se lee al montar: sin interactividad no hay onda ni escucha del puntero
+    const interactiveAtMount = settingsRef.current?.interactive ?? true;
 
     const dispose = (target: RenderTarget) => {
       gl.deleteFramebuffer(target.buffer);
@@ -708,7 +714,7 @@ const PatternWaves = ({
     const pointer = { x: 0, y: 0, inside: false, placed: false, lastX: 0, lastY: 0, burst: 0 };
 
     const buildRipple = () => {
-      if (!floatTargets) return;
+      if (!floatTargets || !interactiveAtMount) return;
       const w = clamp(Math.ceil(width / RIPPLE_CELL), 4, 512);
       const h = clamp(Math.ceil(height / RIPPLE_CELL), 4, 512);
       if (ripple && ripple.width === w && ripple.height === h) return;
@@ -938,11 +944,13 @@ const PatternWaves = ({
       if (!document.hidden) start();
     };
 
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('pointerdown', onPointerDown, { passive: true });
-    window.addEventListener('pointerout', onPointerOut, { passive: true });
-    window.addEventListener('pointerup', onPointerUp, { passive: true });
-    window.addEventListener('blur', onPointerLeave);
+    if (interactiveAtMount) {
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      window.addEventListener('pointerdown', onPointerDown, { passive: true });
+      window.addEventListener('pointerout', onPointerOut, { passive: true });
+      window.addEventListener('pointerup', onPointerUp, { passive: true });
+      window.addEventListener('blur', onPointerLeave);
+    }
     document.addEventListener('visibilitychange', onVisibility);
 
     const resizeObserver = new ResizeObserver(resize);

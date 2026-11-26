@@ -43,6 +43,12 @@ export const en: SiteContent = {
     googleReview: "Google review",
     readReviews: "Read reviews on Google",
     writeReview: "Write a review",
+    reviewsCarousel: {
+      readMore: "Read more",
+      readLess: "Show less",
+      loading: "Loading reviews…",
+      error: "We couldn't load the reviews. Read them on Google.",
+    },
     whatsappMessage: "Hi Hybrid World, I'd like information about:",
     viewShop: "View the {city} shop",
     socialLabel: "Hybrid World {city} on {network}",

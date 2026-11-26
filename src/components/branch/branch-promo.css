@@ -1,0 +1,176 @@
+/* ---------- Franja de la promoción (arriba del hero) ----------
+   Va justo debajo del header fijo; el hero que la sigue ya no necesita
+   dejar el hueco del header. */
+
+.promo-bar {
+  --nav-h: 61px;
+  position: relative;
+  z-index: 2;
+  margin-top: var(--nav-h);
+  background: linear-gradient(180deg, #2df17f 0%, var(--neon) 55%, #0fcd62 100%);
+  color: #03130a;
+}
+
+.promo-bar[hidden] {
+  display: none;
+}
+
+.promo-bar:not([hidden]) + .bhero {
+  padding-top: 0;
+}
+
+.promo-bar__btn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 14px;
+  width: 100%;
+  padding: 9px var(--pad);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  color: inherit;
+  cursor: pointer;
+}
+
+.promo-bar__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.promo-bar__btn:hover .promo-bar__cta svg {
+  transform: translateX(3px);
+}
+
+.promo-bar__cta svg {
+  transition: transform 0.25s var(--ease-out);
+}
+
+.promo-bar__btn:focus-visible {
+  outline: 2px solid #03130a;
+  outline-offset: -4px;
+}
+
+@media (max-width: 520px) {
+  .promo-bar__btn {
+    font-size: 0.84rem;
+  }
+}
+
+/* ---------- El flyer (diálogo) ---------- */
+
+.promo {
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  margin: auto;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+}
+
+.promo::backdrop {
+  background: rgba(0, 0, 0, 0.82);
+}
+
+/* Con el flyer abierto la página de fondo no se desplaza */
+html:has(.promo[open]) {
+  overflow: hidden;
+}
+
+.promo__box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: min(92vw, 480px, calc((100dvh - 7.5rem) * 0.75));
+}
+
+.promo__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  background: #0b0b0b;
+  box-shadow:
+    0 0 0 1px var(--neon-dim),
+    0 24px 70px rgba(0, 0, 0, 0.6);
+}
+
+.promo__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  cursor: pointer;
+}
+
+.promo__close:hover {
+  background: #000;
+  border-color: var(--neon);
+}
+
+.promo__close:focus-visible {
+  outline: 2px solid var(--neon);
+  outline-offset: 2px;
+}
+
+.promo__actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.promo__call {
+  flex: 1;
+  justify-content: center;
+  padding: 14px 18px;
+  font-size: 1rem;
+}
+
+.promo__wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border: 1px solid var(--neon-dim);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+.promo__wa:hover {
+  border-color: var(--neon);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .promo[open] .promo__box {
+    animation: promoIn 0.35s var(--ease-out);
+  }
+
+  @keyframes promoIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+}

@@ -7,12 +7,14 @@
  *
  * Cambios respecto al original: tipos; cada imagen puede traer `thumb` (las
  * baldosas de la cúpula cargan esa versión pequeña y la grande solo al abrirla);
- * `touchAction` para dejar pasar el scroll vertical de la página en móvil; y
- * sin fotos de ejemplo.
+ * `touchAction` para dejar pasar el scroll vertical de la página en móvil;
+ * `draggable` y `autoRotate` (la cúpula gira sola y no se arrastra, para que el
+ * dedo siempre haga scroll de la página); botón de cerrar; y sin fotos de ejemplo.
  */
 
 import { useEffect, useMemo, useRef, useCallback, type CSSProperties } from 'react';
 import { useGesture } from '@use-gesture/react';
+import { renderPaused } from '@/lib/render-gate';
 import './DomeGallery.css';
 
 export type DomeImage = { src: string; thumb?: string; alt?: string };
@@ -106,6 +108,10 @@ export interface DomeGalleryProps {
   touchAction?: CSSProperties['touchAction'];
   /** Texto (aria-label) del botón que cierra la foto abierta. Añadido para el sitio. */
   closeLabel?: string;
+  /** false: la cúpula no se arrastra; el gesto queda para el scroll de la página. Añadido para el sitio. */
+  draggable?: boolean;
+  /** Giro automático en grados por segundo (0 = quieta). Se detiene fuera de pantalla, con una foto abierta y con "reducir movimiento". */
+  autoRotate?: number;
 }
 
 export default function DomeGallery({
@@ -127,7 +133,9 @@ export default function DomeGallery({
   openedImageBorderRadius = '30px',
   grayscale = true,
   touchAction = 'none',
-  closeLabel = 'Close photo'
+  closeLabel = 'Close photo',
+  draggable = true,
+  autoRotate = 0
 }: DomeGalleryProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -349,8 +357,76 @@ export default function DomeGallery({
         }
       }
     },
-    { target: mainRef, eventOptions: { passive: true } }
+    { target: mainRef, enabled: draggable, eventOptions: { passive: true } }
   );
+
+  // Giro automático: solo con al menos media cúpula en pantalla, sin foto abierta
+  // y con el usuario quieto. Girar las 100 baldosas en 3D cuesta mucho en un
+  // teléfono de gama media (unos 20 fps con la CPU 4× más lenta), así que
+  // mientras hace scroll o toca la pantalla se para y vuelve a girar al soltar:
+  // el scroll queda tan fluido como con la cúpula quieta.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!autoRotate || !root) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const IDLE_MS = 400;
+    let raf = 0;
+    let last = 0;
+    let busyUntil = 0;
+    const busy = () => {
+      busyUntil = performance.now() + IDLE_MS;
+    };
+    const tick = (t: number) => {
+      if (t < busyUntil) {
+        // Parada: se reanuda sola cuando el usuario suelta
+        raf = 0;
+        last = 0;
+        window.setTimeout(resume, busyUntil - t + 16);
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+      const dt = last ? Math.min(t - last, 100) : 0;
+      last = t;
+      if (
+        focusedElRef.current ||
+        openingRef.current ||
+        draggingRef.current ||
+        inertiaRAF.current ||
+        root.getAttribute('data-enlarging') === 'true' ||
+        renderPaused()
+      )
+        return;
+      const { x, y } = rotationRef.current;
+      const nextY = wrapAngleSigned(y + (autoRotate * dt) / 1000);
+      rotationRef.current = { x, y: nextY };
+      applyTransform(x, nextY);
+    };
+    let visible = false;
+    const resume = () => {
+      if (visible && !raf) raf = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        // Media cúpula a la vista, o media pantalla ocupada si la cúpula es más alta que la pantalla
+        visible = entry.intersectionRatio >= 0.5 || entry.intersectionRect.height >= window.innerHeight / 2;
+        if (visible) resume();
+        else if (raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+          last = 0;
+        }
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+    io.observe(root);
+    const events = ['scroll', 'wheel', 'touchstart', 'touchmove', 'pointerdown'] as const;
+    events.forEach((e) => window.addEventListener(e, busy, { passive: true }));
+    return () => {
+      io.disconnect();
+      events.forEach((e) => window.removeEventListener(e, busy));
+      cancelAnimationFrame(raf);
+    };
+  }, [autoRotate]);
 
   useEffect(() => {
     const scrim = scrimRef.current;

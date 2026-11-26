@@ -14,13 +14,15 @@ import { closedDays, hoursSlots, localePath } from "@/lib/i18n";
 import { branchPageSchema } from "@/lib/schema";
 import { getReviews } from "@/lib/reviews";
 import { getContent } from "@/content";
-import { getBranchContent } from "@/content/locations";
+import { activePromo, getBranchContent } from "@/content/locations";
 import BranchHero from "@/components/branch/BranchHero";
 import BranchCallBar from "@/components/branch/BranchCallBar";
+import BranchPromo from "@/components/branch/BranchPromo";
 import PartExplorer from "@/components/parts/PartExplorer";
 import BrandStrip from "@/components/BrandStrip";
 import ShopCarousel from "@/components/branch/ShopCarousel";
-import ReviewCard, { Stars } from "@/components/reviews/ReviewCard";
+import { Stars } from "@/components/reviews/ReviewCard";
+import LazyGoogleReviews from "@/components/reviews/LazyGoogleReviews";
 import FaqList from "@/components/FaqList";
 import LocationsMap from "@/components/locations/LocationsMap";
 import JsonLd from "@/components/JsonLd";
@@ -70,6 +72,7 @@ export default async function BranchView({ locale, slug }: { locale: Locale; slu
   const directions = directionsHref(l);
   const socials = socialLinks(l);
   const closed = closedDays(l.hours, locale);
+  const promo = activePromo(b);
 
   const crumbs = [
     { name: c.ui.breadcrumbHome, path: "/" },
@@ -77,7 +80,8 @@ export default async function BranchView({ locale, slug }: { locale: Locale; slu
     { name: l.city, path: locationPagePath(l) },
   ];
 
-  // Reseñas: la nota de la ficha de la sede y, con la Places API, sus reseñas reales
+  // Reseñas: la nota de la ficha de la sede y sus reseñas reales (Featurable o
+  // Places API, leídas en el servidor con caché de 24 h). Nunca las de otra sede.
   const feed = await getReviews(locale);
   const place = feed.places.find((p) => p.slug === slug);
   const reviews = feed.reviews.filter((r) => r.location === slug);
@@ -105,6 +109,9 @@ export default async function BranchView({ locale, slug }: { locale: Locale; slu
           crumbs,
         })}
       />
+
+      {/* Promoción de la sede: franja arriba del hero y flyer al entrar (hasta su fecha de fin) */}
+      {promo && <BranchPromo promo={promo} tel={tel} whatsappHref={whatsappHrefForPhone(l.phone, promo.dialog.whatsapp)} />}
 
       <BranchHero
         crumbs={crumbs.map((cr, i) => ({ name: cr.name, href: i < crumbs.length - 1 ? href(cr.path) : undefined }))}
@@ -176,13 +183,7 @@ export default async function BranchView({ locale, slug }: { locale: Locale; slu
                 </CtaGhost>
               </div>
             </div>
-            {reviews.length > 0 && (
-              <div className="rev-grid">
-                {reviews.map((r, i) => (
-                  <ReviewCard key={`${r.author}-${i}`} review={r} starsLabel={c.ui.starsLabel} meta={r.when || c.ui.googleReview} />
-                ))}
-              </div>
-            )}
+            {reviews.length > 0 && <LazyGoogleReviews locale={locale} reviews={reviews} labels={c.ui.reviewsCarousel} />}
           </div>
         </section>
       )}

@@ -45,3 +45,7 @@ export function getBranchContent(slug: LocationSlug, locale: Locale): BranchPage
  */
 export const shopDescription = (slug: LocationSlug, locale: Locale, fallback: string) =>
   PAGES[slug]?.[locale]?.schemaDescription ?? fallback;
+
+/** La promoción de la página si sigue vigente (BranchView la pinta solo entonces). */
+export const activePromo = (page: BranchPageContent) =>
+  page.promo && Date.now() < Date.parse(page.promo.until) ? page.promo : undefined;

@@ -44,6 +44,12 @@ export const es: SiteContent = {
     googleReview: "Reseña de Google",
     readReviews: "Leer reseñas en Google",
     writeReview: "Escribir una reseña",
+    reviewsCarousel: {
+      readMore: "Leer más",
+      readLess: "Leer menos",
+      loading: "Cargando reseñas…",
+      error: "No pudimos cargar las reseñas. Léelas en Google.",
+    },
     whatsappMessage: "Hola, quiero información del servicio:",
     viewShop: "Ver la sucursal de {city}",
     socialLabel: "Hybrid World {city} en {network}",

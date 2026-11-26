@@ -116,6 +116,12 @@ export type Location = {
     /** Nota y número de opiniones cuando no hay API (dato a mano del 12/10/2026) */
     rating: number;
     count: number;
+    /**
+     * ID del widget de Featurable conectado a esta ficha (featurable.com, gratis).
+     * Con él, lib/reviews.ts lee de Featurable la nota, el total y las reseñas
+     * reales de la ficha (en el servidor, cada 24 h) para todo el sitio.
+     */
+    featurableId?: string;
   };
   /** Ciudades vecinas: alimentan `areaServed` del JSON-LD. */
   nearby: string[];
@@ -178,7 +184,9 @@ export const locations: Location[] = [
     phone: { display: "(408) 449-1311", tel: "+14084491311" },
     geo: { lat: 37.4154548, lng: -122.0967779 },
     hours: MON_FRI_8_4,
-    google: { placeId: "ChIJRwwtlIS7j4ARuyH7Jt4waBE", rating: 4.7, count: 26 },
+    // Widget de Featurable conectado a esta ficha (nota, total y reseñas reales).
+    // rating y count: respaldo por si Featurable no responde (dato del 25/11/2026).
+    google: { placeId: "ChIJRwwtlIS7j4ARuyH7Jt4waBE", rating: 4.8, count: 50, featurableId: "5bbe086f-2c5d-4bd2-8033-ae332c2eebf7" },
     nearby: ["Palo Alto", "Los Altos", "Sunnyvale", "Menlo Park", "Santa Clara", "Cupertino"],
     isNew: true,
     // TODO(cliente): foto propia de la sede de Mountain View. Confirmar si

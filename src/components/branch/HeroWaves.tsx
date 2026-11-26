@@ -16,6 +16,10 @@ const NEON = "#12e06b";
  * ya cargó y el navegador está libre, para no competir con el primer pintado,
  * y entra con su propia animación. El CSS (branch.css) lo desvanece hacia el
  * texto: a la izquierda en escritorio y hacia abajo en móvil.
+ *
+ * Sin interactividad: no reacciona al cursor ni al dedo. Así no escucha cada
+ * movimiento del puntero ni reserva las texturas de la onda, y no vuelve a
+ * dibujar por mover el ratón.
  */
 export default function HeroWaves() {
   const [mode, setMode] = useState<"pending" | "live" | "static">("pending");
@@ -48,7 +52,7 @@ export default function HeroWaves() {
   return (
     <div className={`bhero__waves${mode === "static" ? " bhero__waves--static" : ""}`} aria-hidden="true">
       {mode === "live" && (
-        <PatternWaves preset="silk" color={NEON} backgroundColor="transparent" fade="none" spacing={spacing} cursorSize={60} maxFps={30} pixelBudget={2.2e6} />
+        <PatternWaves preset="silk" color={NEON} backgroundColor="transparent" fade="none" spacing={spacing} interactive={false} maxFps={30} pixelBudget={2.2e6} />
       )}
     </div>
   );

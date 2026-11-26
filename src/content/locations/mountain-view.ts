@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/business";
-import type { BranchPageContent } from "../types";
+import type { BranchPageContent, BranchPromo } from "../types";
 
 /**
  * Página de la sucursal de Mountain View (/locations/mountain-view).
@@ -32,6 +32,19 @@ const SHOP = {
   top: G("rebuilt-1nz-top", 900, 1200),
   engines: G("rebuilt-engines", 576, 1024),
 };
+
+/** Promo de diciembre (flyer del cliente; original en assets-src/promo) */
+const PROMO_EGR = {
+  id: "egr-throttle-2026-12",
+  // Fin del 19 de diciembre en California; después la franja y el flyer desaparecen solos
+  until: "2026-12-19T23:59:59-08:00",
+  image: {
+    src600: "/img/mountain-view/promo/egr-throttle-2026-12-600.webp",
+    src900: "/img/mountain-view/promo/egr-throttle-2026-12-900.webp",
+    width: 1125,
+    height: 1500,
+  },
+} as const;
 
 /* ------------------------------------------------------------------ */
 /* English                                                             */
@@ -118,7 +131,7 @@ const en: BranchPageContent = {
   gallery: {
     eyebrow: "In the shop",
     title: ["Real work,", "from our shop."],
-    lede: "Rebuilt engines, head gasket jobs and the bays where we work on Prius, Lexus, Camry and Tesla. Drag the photos or click one to see it bigger.",
+    lede: "Rebuilt engines, head gasket jobs and the bays where we work on Prius, Lexus, Camry and Tesla. Tap or click any photo to see it bigger.",
     label: "Photos from the shop",
     close: "Close photo",
     // TODO(cliente): confirmar en qué sede se tomó cada foto; hoy salen sin decirlo.
@@ -189,6 +202,18 @@ const en: BranchPageContent = {
   },
 
   bar: { label: "Contact the Mountain View shop", call: "Call" },
+
+  promo: {
+    ...PROMO_EGR,
+    alt: "Hybrid World Mountain View promo: EGR and intake cleaning plus throttle body service, all 3 services for $300 total. One week only, December 13 to 19. Restores lost power and a smooth idle, improves fuel economy and helps prevent engine knocking and check engine lights. 2362 Old Middlefield Way, Ste B2, Mountain View, CA. (408) 449-1311.",
+    bar: { text: "EGR + intake + throttle body cleaning: all 3 for $300 · Dec\u00a013\u2060–\u206019\u00a0only", cta: "See the deal" },
+    dialog: {
+      title: "December promo: EGR, intake and throttle body cleaning for $300",
+      close: "Close the promo",
+      call: "Call to book",
+      whatsapp: "Hi Hybrid World Mountain View, I'd like to book the $300 EGR + intake + throttle body cleaning (Dec 13–19).",
+    },
+  } satisfies BranchPromo,
 };
 
 /* ------------------------------------------------------------------ */
@@ -279,7 +304,7 @@ const es: BranchPageContent = {
   gallery: {
     eyebrow: "En el taller",
     title: ["Trabajo real,", "de nuestro taller."],
-    lede: "Motores reconstruidos, juntas de cabeza y las bahías donde trabajamos en Prius, Lexus, Camry y Tesla. Arrastra las fotos o toca una para verla en grande.",
+    lede: "Motores reconstruidos, juntas de cabeza y las bahías donde trabajamos en Prius, Lexus, Camry y Tesla. Toca o haz clic en cualquier foto para verla en grande.",
     label: "Fotos del taller",
     close: "Cerrar foto",
     // TODO(cliente): confirmar en qué sede se tomó cada foto; hoy salen sin decirlo.
@@ -350,6 +375,18 @@ const es: BranchPageContent = {
   },
 
   bar: { label: "Contacto con la sucursal de Mountain View", call: "Llamar" },
+
+  promo: {
+    ...PROMO_EGR,
+    alt: "Promoción de Hybrid World Mountain View: limpieza de EGR e intake más limpieza del cuerpo de aceleración, los 3 servicios por $300 en total. Solo una semana, del 13 al 19 de diciembre. Recupera potencia y ralentí suave, mejora el consumo de gasolina y evita cascabeleo y luz de check engine. 2362 Old Middlefield Way, Ste B2, Mountain View, CA. (408) 449-1311.",
+    bar: { text: "Limpieza de EGR + intake + cuerpo de aceleración: los 3 por $300 · solo del 13\u00a0al\u00a019\u00a0de\u00a0dic.", cta: "Ver promo" },
+    dialog: {
+      title: "Promoción de diciembre: limpieza de EGR, intake y cuerpo de aceleración por $300",
+      close: "Cerrar la promoción",
+      call: "Llama para agendar",
+      whatsapp: "Hola Hybrid World Mountain View, quiero agendar la limpieza de EGR + intake + cuerpo de aceleración de $300 (13 al 19 de dic.).",
+    },
+  } satisfies BranchPromo,
 };
 
 export const mountainView: Record<Locale, BranchPageContent> = { en, es };

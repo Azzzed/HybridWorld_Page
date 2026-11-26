@@ -4,6 +4,9 @@ import { googleListingHref, locations, writeReviewHref, type Locale, type Locati
 /**
  * Reseñas de Google de las tres sedes.
  *
+ * Una sede con `google.featurableId` (business.ts) las lee de su widget de
+ * Featurable: nota, total y reseñas reales de la ficha, sin key.
+ *
  * Con GOOGLE_PLACES_API_KEY (variable de entorno en Vercel), se leen de la
  * Places API (New) en el servidor, una ficha por sede (Place ID en
  * business.ts), y Next las guarda en caché: las páginas que las muestran se
@@ -109,11 +112,6 @@ const summarize = (places: PlaceRating[]) => {
   return { count, rating: Math.round(rating * 10) / 10 };
 };
 
-function bundled(): ReviewFeed {
-  const places = locations.map(basePlace);
-  return { live: false, places, ...summarize(places), reviews: BUNDLED.map((r) => ({ ...r, when: "" })) };
-}
-
 async function fetchPlace(key: string, placeId: string, locale: Locale) {
   const res = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=${locale}`, {
     headers: {
@@ -126,56 +124,123 @@ async function fetchPlace(key: string, placeId: string, locale: Locale) {
   return (await res.json()) as PlacesResponse;
 }
 
-export async function getReviews(locale: Locale): Promise<ReviewFeed> {
-  const key = process.env.GOOGLE_PLACES_API_KEY;
-  if (!key) return bundled();
+/* ------------------------------------------------------------------ */
+/* Featurable (widget gratuito conectado a la ficha de Google)          */
+/* ------------------------------------------------------------------ */
 
-  const results = await Promise.allSettled(locations.map((l) => fetchPlace(key, l.google.placeId, locale)));
-  if (results.every((r) => r.status === "rejected")) {
-    console.warn("[reviews] Places API no disponible, se usan los datos de business.ts:", (results[0] as PromiseRejectedResult).reason);
-    return bundled();
+type FeaturableV2 = {
+  success: boolean;
+  widget?: {
+    isExampleReviews?: boolean;
+    gbpLocationSummary?: { reviewsCount?: number; rating?: number };
+    reviews?: {
+      author?: { name?: string; avatarUrl?: string | null; profileUrl?: string | null };
+      text?: string;
+      originalText?: string;
+      rating?: { value?: number };
+      publishedAt?: string;
+    }[];
+  };
+};
+
+/**
+ * Nota, total y reseñas de una ficha desde su widget de Featurable (API v2,
+ * pública, sin key). Se guarda en caché igual que la Places API.
+ */
+async function fetchFeaturable(id: string) {
+  const res = await fetch(`https://api.featurable.com/v2/widgets/${id}`, { next: { revalidate: REVIEWS_REVALIDATE } });
+  if (!res.ok) throw new Error(`Featurable ${id}: ${res.status}`);
+  const data = (await res.json()) as FeaturableV2;
+  const w = data.widget;
+  // Un widget sin ficha conectada devuelve reseñas de ejemplo: esas nunca se muestran
+  if (!data.success || !w || w.isExampleReviews) throw new Error(`Featurable ${id}: sin reseñas reales`);
+  return w;
+}
+
+type PlaceResult = { place: PlaceRating; reviews: Review[]; live: boolean };
+
+/** Una sede: Featurable si tiene widget; si no, Places API con key; si no, business.ts. */
+async function loadPlace(l: (typeof locations)[number], locale: Locale, key: string | undefined): Promise<PlaceResult> {
+  const base = basePlace(l);
+
+  if (l.google.featurableId) {
+    try {
+      const w = await fetchFeaturable(l.google.featurableId);
+      const reviews: Review[] = (w.reviews ?? []).flatMap((r) => {
+        const text = (r.originalText || r.text || "").replace(/\s+/g, " ").trim();
+        if (!text) return [];
+        return [
+          {
+            author: r.author?.name ?? "Google user",
+            authorUrl: r.author?.profileUrl ?? undefined,
+            photo: r.author?.avatarUrl ?? undefined,
+            when: "",
+            publishTime: r.publishedAt,
+            rating: r.rating?.value ?? 5,
+            text,
+            location: l.slug,
+          },
+        ];
+      });
+      return {
+        place: {
+          ...base,
+          rating: w.gbpLocationSummary?.rating ?? base.rating,
+          count: w.gbpLocationSummary?.reviewsCount ?? base.count,
+        },
+        reviews,
+        live: true,
+      };
+    } catch (err) {
+      console.warn(`[reviews] Featurable ${l.city}:`, err);
+    }
   }
 
-  const places: PlaceRating[] = [];
-  const reviews: Review[] = [];
-  results.forEach((result, i) => {
-    const l = locations[i];
-    const base = basePlace(l);
-    if (result.status === "rejected") {
-      console.warn(`[reviews] ${l.city}:`, result.reason);
-      places.push(base);
-      return;
+  if (key) {
+    try {
+      const place = await fetchPlace(key, l.google.placeId, locale);
+      const reviews: Review[] = [];
+      for (const r of place.reviews ?? []) {
+        const text = (r.originalText?.text ?? r.text?.text ?? "").replace(/\s+/g, " ").trim();
+        if (!text) continue;
+        reviews.push({
+          author: r.authorAttribution?.displayName ?? "Google user",
+          authorUrl: r.authorAttribution?.uri,
+          photo: r.authorAttribution?.photoUri,
+          when: r.relativePublishTimeDescription ?? "",
+          publishTime: r.publishTime,
+          rating: r.rating ?? 5,
+          text,
+          location: l.slug,
+        });
+      }
+      return {
+        place: { ...base, rating: place.rating ?? base.rating, count: place.userRatingCount ?? base.count, url: place.googleMapsUri ?? base.url },
+        reviews,
+        live: true,
+      };
+    } catch (err) {
+      console.warn(`[reviews] Places API ${l.city}:`, err);
     }
-    const place = result.value;
-    places.push({
-      ...base,
-      rating: place.rating ?? base.rating,
-      count: place.userRatingCount ?? base.count,
-      url: place.googleMapsUri ?? base.url,
-    });
-    for (const r of place.reviews ?? []) {
-      const text = (r.originalText?.text ?? r.text?.text ?? "").replace(/\s+/g, " ").trim();
-      if (!text) continue;
-      reviews.push({
-        author: r.authorAttribution?.displayName ?? "Google user",
-        authorUrl: r.authorAttribution?.uri,
-        photo: r.authorAttribution?.photoUri,
-        when: r.relativePublishTimeDescription ?? "",
-        publishTime: r.publishTime,
-        rating: r.rating ?? 5,
-        text,
-        location: l.slug,
-      });
-    }
-  });
+  }
 
+  // Sin fuente en vivo: la nota de business.ts y, si las hay, sus reseñas copiadas a mano
+  return { place: base, reviews: BUNDLED.filter((r) => r.location === l.slug).map((r) => ({ ...r, when: "" })), live: false };
+}
+
+export async function getReviews(locale: Locale): Promise<ReviewFeed> {
+  const key = process.env.GOOGLE_PLACES_API_KEY;
+  const results = await Promise.all(locations.map((l) => loadPlace(l, locale, key)));
+
+  const places = results.map((r) => r.place);
+  const live = results.some((r) => r.live);
   // Las más recientes primero
-  reviews.sort((a, b) => (b.publishTime ?? "").localeCompare(a.publishTime ?? ""));
+  const reviews = results.flatMap((r) => r.reviews).sort((a, b) => (b.publishTime ?? "").localeCompare(a.publishTime ?? ""));
 
   return {
-    live: true,
+    live,
     places,
     ...summarize(places),
-    reviews: reviews.length ? reviews : bundled().reviews,
+    reviews,
   };
 }

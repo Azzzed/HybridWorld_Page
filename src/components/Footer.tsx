@@ -1,12 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
-import { business, fullAddress, locationPagePath, locations, socialLinks, whatsappHref, type Locale } from "@/lib/business";
+import { MapPin } from "lucide-react";
+import {
+  branchPages,
+  business,
+  fullAddress,
+  googleListingHref,
+  locationPagePath,
+  locations,
+  socialLinks,
+  whatsappHref,
+  whatsappHrefForPhone,
+  type Locale,
+} from "@/lib/business";
 import { hoursSummary, localePath } from "@/lib/i18n";
 import { getContent } from "@/content";
 import LangSwitch from "./layout/LangSwitch";
 import LegalLinks from "./LegalLinks";
 import SocialIcon from "./ui/SocialIcon";
+import { FooterContact, FooterQuickLinks, type FooterBranch, type FooterContactData } from "./footer/FooterBranchLinks";
 import "./footer.css";
 
 export default function Footer({ locale }: { locale: Locale }) {
@@ -18,6 +30,20 @@ export default function Footer({ locale }: { locale: Locale }) {
     { href: href("/reviews"), label: ui.nav.reviews },
     { href: href("/faq"), label: ui.nav.faq },
   ];
+
+  // Teléfono, WhatsApp y ficha de Google: los generales y, en la página de una
+  // sede, los de esa sede (así quien llega a Mountain View no termina en Norwalk)
+  const site: FooterContactData = {
+    phone: business.phone,
+    whatsapp: { href: whatsappHref(), label: `${ui.whatsapp} ${business.whatsapp.display}` },
+    listing: business.googleMapsUrl,
+  };
+  const branches: FooterBranch[] = branchPages.map((l) => ({
+    path: locationPagePath(l),
+    phone: l.phone,
+    whatsapp: { href: whatsappHrefForPhone(l.phone, `${ui.whatsappMessage} ${l.city}`), label: `${ui.whatsapp} ${l.phone.display}` },
+    listing: googleListingHref(l),
+  }));
 
   return (
     <footer className="footer">
@@ -33,17 +59,7 @@ export default function Footer({ locale }: { locale: Locale }) {
           <p className="footer__pitch">
             {ui.footer.pitch} <strong>{ui.footer.spanish}</strong>
           </p>
-          <div className="footer__contact">
-            <a href={`tel:${business.phone.tel}`}>
-              <Phone size={15} /> {business.phone.display}
-            </a>
-            <a href={whatsappHref()} target="_blank" rel="noreferrer noopener">
-              <MessageCircle size={15} /> {ui.whatsapp} {business.whatsapp.display}
-            </a>
-            <a href={`mailto:${business.email}`}>
-              <Mail size={15} /> {business.email}
-            </a>
-          </div>
+          <FooterContact site={site} branches={branches} email={business.email} />
           <LangSwitch locale={locale} label={ui.switchLanguage} className="footer__lang" />
         </div>
 
@@ -107,16 +123,7 @@ export default function Footer({ locale }: { locale: Locale }) {
                 <Link href={n.href}>{n.label}</Link>
               </li>
             ))}
-            <li>
-              <a href={whatsappHref()} target="_blank" rel="noreferrer noopener">
-                {ui.footer.quoteWhatsapp}
-              </a>
-            </li>
-            <li>
-              <a href={business.googleMapsUrl} target="_blank" rel="noreferrer noopener">
-                {ui.footer.googleListing}
-              </a>
-            </li>
+            <FooterQuickLinks site={site} branches={branches} labels={{ quote: ui.footer.quoteWhatsapp, listing: ui.footer.googleListing }} />
             <li>
               <a href={business.facebookUrl} target="_blank" rel="noreferrer noopener">
                 {ui.footer.facebook}

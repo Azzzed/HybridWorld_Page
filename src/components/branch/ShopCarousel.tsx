@@ -29,7 +29,9 @@ type Mode = "strip" | "dome" | "flex";
  * Fotos del taller. En el HTML va una fila de fotos normal (<img>, con scroll
  * horizontal): la ven Google y quien llega antes de que cargue el efecto. Al
  * acercarse a la sección se monta UN solo efecto según la pantalla:
- *   - teléfono o tablet táctil: DomeGallery de React Bits (CSS 3D, sin WebGL);
+ *   - teléfono o tablet táctil: DomeGallery de React Bits (CSS 3D, sin WebGL),
+ *     girando sola y sin arrastre: el dedo siempre desplaza la página y un toque
+ *     abre la foto;
  *   - escritorio con WebGL acelerado: FlexCarousel de React Bits;
  *   - escritorio sin GPU: se queda la fila de fotos.
  * Si la pantalla cambia de tipo (girar una tablet, redimensionar), React
@@ -91,14 +93,15 @@ export default function ShopCarousel({ photos, label, closeLabel }: { photos: Sh
             minRadius={420}
             segments={20}
             maxVerticalRotationDeg={4}
-            dragSensitivity={18}
             overlayBlurColor="#000000"
             imageBorderRadius="0px"
             openedImageBorderRadius="0px"
             openedImageWidth="min(88vw, 380px)"
             openedImageHeight="min(117vw, 506px)"
             grayscale={false}
-            touchAction="pan-y"
+            touchAction="manipulation"
+            draggable={false}
+            autoRotate={7}
             closeLabel={closeLabel}
           />
         </div>

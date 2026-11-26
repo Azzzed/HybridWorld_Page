@@ -45,6 +45,8 @@ export type SiteContent = {
     googleReview: string;
     readReviews: string;
     writeReview: string;
+    /** Carrusel de reseñas de Google (react-google-reviews) */
+    reviewsCarousel: { readMore: string; readLess: string; loading: string; error: string };
     whatsappMessage: string;
     /** Enlace a la página de una sede: "{city}" se reemplaza por la ciudad */
     viewShop: string;
@@ -210,4 +212,27 @@ export type BranchPageContent = PageMeta & {
   };
   cta: { title: string; text: string };
   bar: { label: string; call: string };
+  /** Promoción de la sede: franja arriba del hero y flyer al cargar la página */
+  promo?: BranchPromo;
+};
+
+export type BranchPromo = {
+  /** Identifica la promo (nombre de la campaña) */
+  id: string;
+  /** Hasta cuándo se muestra (ISO con zona horaria) */
+  until: string;
+  /** Flyer en dos tamaños (600 y 900 px de ancho, en /public) */
+  image: { src600: string; src900: string; width: number; height: number };
+  /** Lo que dice el flyer, para lectores de pantalla y Google */
+  alt: string;
+  /** Franja: el texto y la llamada a abrir el flyer */
+  bar: { text: string; cta: string };
+  dialog: {
+    /** Título del diálogo (oculto: el flyer ya lo dice) */
+    title: string;
+    close: string;
+    call: string;
+    /** Mensaje ya escrito del WhatsApp */
+    whatsapp: string;
+  };
 };
